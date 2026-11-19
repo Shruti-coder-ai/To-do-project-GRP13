@@ -1,0 +1,62 @@
+<header class="glass-card-subtle px-4 sm:px-6 py-3.5 rounded-2xl flex items-center justify-between shadow-sm border border-white/60 mb-6">
+  <!-- Left: Mobile Menu Toggle & Title -->
+  <div class="flex items-center gap-3">
+    <!-- Hamburger button for mobile/tablet screens -->
+    <button
+      type="button"
+      (click)="onToggle()"
+      class="lg:hidden w-10 h-10 rounded-xl bg-white/80 hover:bg-white text-[#7054C8] flex items-center justify-center border border-purple-200 shadow-xs focus:outline-hidden transition-colors"
+      aria-label="Toggle navigation menu"
+    >
+      <i class="pi pi-bars text-lg"></i>
+    </button>
+
+    <div>
+      <h1 class="text-xl sm:text-2xl font-extrabold text-[#332747] tracking-tight leading-tight">
+        {{ pageTitle }}
+      </h1>
+      @if (pageSubtitle) {
+        <p class="text-xs text-[#6b5d82] mt-0.5 hidden sm:block">
+          {{ pageSubtitle }}
+        </p>
+      }
+    </div>
+  </div>
+
+  <!-- Right: User Info Chip, Role Badge & Actions -->
+  <div class="flex items-center gap-3 sm:gap-4">
+    <!-- User Chip with Greeting -->
+    @if (authService.currentUser(); as user) {
+      <div class="flex items-center gap-2.5 bg-white/80 px-3 py-1.5 rounded-xl border border-purple-100 shadow-xs">
+        <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-[#7054C8] to-[#A5A0F5] text-white flex items-center justify-center font-bold text-xs shadow-xs">
+          {{ user.name.charAt(0).toUpperCase() }}
+        </div>
+        <div class="text-left hidden md:block">
+          <p class="text-xs font-bold text-[#332747] leading-none truncate max-w-[140px]">
+            {{ user.name }}
+          </p>
+          <span
+            class="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-md inline-block mt-1"
+            [ngClass]="{
+              'bg-purple-100 text-[#7054C8]': user.role === 'USER',
+              'bg-pink-100 text-pink-700': user.role === 'ADMIN'
+            }"
+          >
+            {{ user.role }}
+          </span>
+        </div>
+      </div>
+    }
+
+    <!-- Logout Action Button -->
+    <button
+      type="button"
+      (click)="onLogout()"
+      class="px-3.5 py-2 rounded-xl text-xs font-bold bg-white/90 hover:bg-rose-50 text-rose-600 hover:text-rose-700 border border-rose-200 shadow-xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
+      title="Log out of application"
+    >
+      <i class="pi pi-sign-out text-sm"></i>
+      <span class="hidden sm:inline">Logout</span>
+    </button>
+  </div>
+</header>

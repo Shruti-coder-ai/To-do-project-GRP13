@@ -1,0 +1,186 @@
+<div class="min-h-screen w-full flex items-center justify-center p-4 sm:p-6 lg:p-8 bg-gradient-to-br from-[#EDE7FF] via-[#F5EEFF] to-[#FCE7F3] relative overflow-hidden">
+  <!-- Glowing background orbs -->
+  <div class="absolute -top-32 -left-32 w-96 h-96 bg-purple-400/30 rounded-full blur-3xl pointer-events-none"></div>
+  <div class="absolute -bottom-32 -right-32 w-96 h-96 bg-indigo-400/30 rounded-full blur-3xl pointer-events-none"></div>
+
+  <!-- Main Card -->
+  <div class="w-full max-w-5xl glass-card rounded-3xl overflow-hidden shadow-2xl grid grid-cols-1 lg:grid-cols-12 relative z-10 border border-white/80">
+
+    <!-- LEFT COLUMN: Admin Branding & Security Panel -->
+    <div class="lg:col-span-5 bg-gradient-to-br from-[#5B3EB2] via-[#7054C8] to-[#8C71E5] p-8 sm:p-10 text-white flex flex-col justify-between relative overflow-hidden">
+      <div class="absolute -bottom-16 -left-16 w-64 h-64 bg-white/10 rounded-full blur-2xl"></div>
+      <div class="absolute top-12 -right-12 w-48 h-48 bg-pink-400/20 rounded-full blur-2xl"></div>
+
+      <!-- Header -->
+      <div class="relative z-10">
+        <div class="inline-flex items-center gap-3 bg-white/15 backdrop-blur-md px-4 py-2 rounded-2xl border border-white/20 mb-8 shadow-sm">
+          <div class="w-8 h-8 rounded-xl bg-white text-[#5B3EB2] flex items-center justify-center font-black text-lg shadow-sm">
+            <i class="pi pi-shield"></i>
+          </div>
+          <span class="font-extrabold tracking-tight text-xl">TaskFlow Admin</span>
+        </div>
+
+        <h2 class="text-3xl sm:text-4xl font-extrabold leading-tight tracking-tight mb-4 text-white">
+          System Governance & <span class="text-[#FCE7F3]">Analytics</span>.
+        </h2>
+        <p class="text-purple-100 text-sm leading-relaxed opacity-95">
+          Dedicated administrative control room for user account lifecycle management, platform task oversight, and real-time statistics.
+        </p>
+      </div>
+
+      <!-- Security Feature Cards -->
+      <div class="relative z-10 my-8 space-y-3">
+        <div class="bg-white/15 backdrop-blur-md p-4 rounded-2xl border border-white/20 shadow-lg">
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="text-xs font-bold text-white flex items-center gap-2">
+              <i class="pi pi-users text-pink-300"></i> User Governance
+            </span>
+            <span class="text-[10px] bg-emerald-400/30 text-emerald-100 px-2 py-0.5 rounded-full font-bold">Protected</span>
+          </div>
+          <p class="text-[11px] text-purple-200">Activate or deactivate user privileges instantly with full confirmation dialogs.</p>
+        </div>
+
+        <div class="bg-white/15 backdrop-blur-md p-4 rounded-2xl border border-white/20 shadow-lg">
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="text-xs font-bold text-white flex items-center gap-2">
+              <i class="pi pi-chart-pie text-amber-300"></i> Chart.js Visualizations
+            </span>
+            <span class="text-[10px] bg-purple-300/30 text-purple-100 px-2 py-0.5 rounded-full font-bold">Real-time</span>
+          </div>
+          <p class="text-[11px] text-purple-200">Interactive Doughnut and Bar charts for platform task metrics.</p>
+        </div>
+      </div>
+
+      <!-- Security Notice -->
+      <div class="relative z-10 p-3 rounded-2xl bg-black/15 border border-white/15 text-[11px] text-purple-100">
+        <i class="pi pi-lock mr-1 text-[#FCE7F3]"></i>
+        <span>Restricted Area: Only authorized system administrators may sign in here.</span>
+      </div>
+    </div>
+
+    <!-- RIGHT COLUMN: Admin Form Panel -->
+    <div class="lg:col-span-7 bg-[#FFF9F2] p-8 sm:p-12 flex flex-col justify-between">
+      <div>
+        <!-- Welcome text -->
+        <div class="mb-6">
+          <div class="inline-flex items-center gap-1.5 bg-pink-100/90 text-pink-700 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-2">
+            <i class="pi pi-shield text-[11px]"></i>
+            <span>Administrator Portal</span>
+          </div>
+          <h1 class="text-2xl sm:text-3xl font-extrabold text-[#332747]">
+            Sign In to Admin Console
+          </h1>
+          <p class="text-[#6b5d82] text-sm mt-1">
+            Enter your administrative credentials to access the console.
+          </p>
+        </div>
+
+        <!-- Error Alert -->
+        @if (errorMessage()) {
+          <div class="mb-5 p-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-xs sm:text-sm flex items-start gap-2.5 animate-fadeIn">
+            <i class="pi pi-exclamation-circle text-rose-500 mt-0.5 text-base"></i>
+            <div>
+              <p class="font-semibold">Access Error</p>
+              <p class="text-rose-600/90 text-xs mt-0.5">{{ errorMessage() }}</p>
+            </div>
+          </div>
+        }
+
+        <!-- Admin Form -->
+        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-4">
+          <!-- Email Input -->
+          <div>
+            <label for="admin-email" class="block text-xs font-bold text-[#332747] uppercase tracking-wider mb-1.5">
+              Admin Email
+            </label>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#6b5d82]">
+                <i class="pi pi-envelope text-sm"></i>
+              </div>
+              <input
+                id="admin-email"
+                type="email"
+                formControlName="email"
+                placeholder="admin@taskflow.dev"
+                autocomplete="email"
+                class="w-full pl-10 pr-4 py-3 bg-white rounded-xl border text-sm text-[#332747] placeholder-[#A5A0F5]/70 focus:outline-hidden focus:ring-3 focus:ring-[#7054C8]/20 focus:border-[#7054C8] transition-all"
+                [ngClass]="{
+                  'border-rose-400 bg-rose-50/30': f['email'].touched && f['email'].invalid,
+                  'border-purple-200 hover:border-purple-300': !f['email'].touched || f['email'].valid
+                }"
+              />
+            </div>
+            @if (f['email'].touched && f['email'].invalid) {
+              <div class="mt-1 text-xs text-rose-600">Please enter a valid administrator email address.</div>
+            }
+          </div>
+
+          <!-- Password Input -->
+          <div>
+            <label for="admin-password" class="block text-xs font-bold text-[#332747] uppercase tracking-wider mb-1.5">
+              Admin Password
+            </label>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#6b5d82]">
+                <i class="pi pi-lock text-sm"></i>
+              </div>
+              <input
+                id="admin-password"
+                [type]="showPassword() ? 'text' : 'password'"
+                formControlName="password"
+                placeholder="Enter admin password"
+                autocomplete="current-password"
+                class="w-full pl-10 pr-11 py-3 bg-white rounded-xl border text-sm text-[#332747] placeholder-[#A5A0F5]/70 focus:outline-hidden focus:ring-3 focus:ring-[#7054C8]/20 focus:border-[#7054C8] transition-all"
+                [ngClass]="{
+                  'border-rose-400 bg-rose-50/30': f['password'].touched && f['password'].invalid,
+                  'border-purple-200 hover:border-purple-300': !f['password'].touched || f['password'].valid
+                }"
+              />
+              <button
+                type="button"
+                (click)="togglePasswordVisibility()"
+                class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-[#6b5d82] hover:text-[#7054C8] transition-colors focus:outline-hidden"
+              >
+                <i [class]="showPassword() ? 'pi pi-eye-slash' : 'pi pi-eye'"></i>
+              </button>
+            </div>
+            @if (f['password'].touched && f['password'].invalid) {
+              <div class="mt-1 text-xs text-rose-600">Password is required (minimum 6 characters).</div>
+            }
+          </div>
+
+          <!-- Submit Button -->
+          <div class="pt-2">
+            <button
+              type="submit"
+              [disabled]="isLoading()"
+              class="w-full py-3.5 px-6 rounded-xl font-bold text-white bg-gradient-to-r from-[#5B3EB2] via-[#7054C8] to-[#8C71E5] hover:opacity-95 active:scale-[0.99] shadow-lg shadow-purple-500/25 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
+            >
+              @if (isLoading()) {
+                <i class="pi pi-spin pi-spinner text-base"></i>
+                <span>Verifying Administrator Access...</span>
+              } @else {
+                <i class="pi pi-shield text-xs"></i>
+                <span>Access Admin Console</span>
+                <i class="pi pi-arrow-right text-xs"></i>
+              }
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Bottom Switch to User Login -->
+      <div class="pt-6 mt-6 border-t border-purple-100 text-center">
+        <p class="text-xs sm:text-sm text-[#6b5d82]">
+          Looking for personal task management?
+          <a
+            routerLink="/login"
+            class="font-bold text-[#7054C8] hover:text-[#5e43b3] hover:underline transition-colors ml-1"
+          >
+            Go to User Login &rarr;
+          </a>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>

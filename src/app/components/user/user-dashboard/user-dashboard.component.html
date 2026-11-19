@@ -1,0 +1,407 @@
+<div class="min-h-screen flex bg-gradient-to-br from-[#EDE7FF] via-[#F5EEFF] to-[#FCE7F3] relative overflow-x-hidden">
+
+  <!-- Sidebar Component -->
+  <app-sidebar
+    [isOpen]="isSidebarOpen()"
+    (closeSidebar)="toggleSidebar()"
+  ></app-sidebar>
+
+  <!-- Main Content Area -->
+  <main class="flex-1 flex flex-col p-4 sm:p-6 lg:p-8 min-w-0 overflow-y-auto">
+
+    <!-- Reusable Navbar Header -->
+    <app-navbar
+      pageTitle="Personal Task Board"
+      [pageSubtitle]="'Welcome back, ' + (authService.currentUser()?.name || 'User') + '! Here is your productivity summary.'"
+      (toggleSidebar)="toggleSidebar()"
+    ></app-navbar>
+
+    <!-- OVERVIEW STATISTICS CARDS -->
+    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 mb-8">
+      <!-- Total Tasks Card -->
+      <div class="glass-card p-5 rounded-2xl flex items-center justify-between border border-white/70 shadow-sm hover:shadow-md transition-shadow">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-[#6b5d82]">Total Tasks</span>
+          <p class="text-2xl sm:text-3xl font-extrabold text-[#332747] mt-1">
+            {{ taskService.userStatistics().totalTasks }}
+          </p>
+          <span class="text-[11px] text-[#7054C8] font-medium mt-1 inline-block">All personal tasks</span>
+        </div>
+        <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#7054C8] to-[#A5A0F5] text-white flex items-center justify-center shadow-md shadow-purple-500/20">
+          <i class="pi pi-list text-xl"></i>
+        </div>
+      </div>
+
+      <!-- Pending Tasks Card -->
+      <div class="glass-card p-5 rounded-2xl flex items-center justify-between border border-white/70 shadow-sm hover:shadow-md transition-shadow">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-[#6b5d82]">Pending Action</span>
+          <p class="text-2xl sm:text-3xl font-extrabold text-amber-600 mt-1">
+            {{ taskService.userStatistics().pendingTasks }}
+          </p>
+          <span class="text-[11px] text-amber-700 font-medium mt-1 inline-block">Awaiting completion</span>
+        </div>
+        <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-400 to-orange-400 text-white flex items-center justify-center shadow-md shadow-amber-500/20">
+          <i class="pi pi-clock text-xl"></i>
+        </div>
+      </div>
+
+      <!-- Completed Tasks Card -->
+      <div class="glass-card p-5 rounded-2xl flex items-center justify-between border border-white/70 shadow-sm hover:shadow-md transition-shadow">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-[#6b5d82]">Completed</span>
+          <p class="text-2xl sm:text-3xl font-extrabold text-emerald-600 mt-1">
+            {{ taskService.userStatistics().completedTasks }}
+          </p>
+          <span class="text-[11px] text-emerald-700 font-medium mt-1 inline-block">Finished tasks</span>
+        </div>
+        <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-400 text-white flex items-center justify-center shadow-md shadow-emerald-500/20">
+          <i class="pi pi-check-circle text-xl"></i>
+        </div>
+      </div>
+
+      <!-- Completion Rate Card -->
+      <div class="glass-card p-5 rounded-2xl flex items-center justify-between border border-white/70 shadow-sm hover:shadow-md transition-shadow">
+        <div class="w-full mr-3">
+          <span class="text-xs font-bold uppercase tracking-wider text-[#6b5d82]">Completion Rate</span>
+          <p class="text-2xl sm:text-3xl font-extrabold text-[#7054C8] mt-1">
+            {{ taskService.userStatistics().completionRate }}%
+          </p>
+          <!-- Mini Progress Bar -->
+          <div class="w-full bg-purple-100 rounded-full h-2 mt-2 overflow-hidden">
+            <div
+              class="bg-gradient-to-r from-[#7054C8] to-[#A5A0F5] h-2 rounded-full transition-all duration-500"
+              [style.width.%]="taskService.userStatistics().completionRate"
+            ></div>
+          </div>
+        </div>
+        <div class="w-12 h-12 shrink-0 rounded-2xl bg-gradient-to-tr from-[#A5A0F5] to-pink-400 text-white flex items-center justify-center shadow-md shadow-pink-500/20">
+          <i class="pi pi-chart-pie text-xl"></i>
+        </div>
+      </div>
+    </section>
+
+    <!-- TASK CONTROLS & FILTER TOOLBAR -->
+    <section class="glass-card p-4 sm:p-5 rounded-2xl mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4 border border-white/70 shadow-sm">
+      <!-- Search Input -->
+      <div class="relative flex-1 max-w-md">
+        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#6b5d82]">
+          <i class="pi pi-search text-sm"></i>
+        </div>
+        <input
+          type="text"
+          [value]="taskService.searchQuery()"
+          (input)="onSearch($event)"
+          placeholder="Search tasks by title or keyword..."
+          class="w-full pl-10 pr-4 py-2.5 bg-white rounded-xl border border-purple-200 text-sm text-[#332747] placeholder-[#A5A0F5]/70 focus:outline-hidden focus:ring-3 focus:ring-[#7054C8]/20 focus:border-[#7054C8] transition-all"
+        />
+        @if (taskService.searchQuery()) {
+          <button
+            type="button"
+            (click)="taskService.searchQuery.set('')"
+            class="absolute inset-y-0 right-0 pr-3 flex items-center text-[#6b5d82] hover:text-[#7054C8]"
+          >
+            <i class="pi pi-times-circle text-xs"></i>
+          </button>
+        }
+      </div>
+
+      <!-- Filters & Add Task Button -->
+      <div class="flex flex-wrap items-center gap-3">
+        <!-- Filter Tabs -->
+        <div class="flex items-center bg-white/90 p-1 rounded-xl border border-purple-200 shadow-xs">
+          <button
+            type="button"
+            (click)="setFilter('All')"
+            class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all"
+            [ngClass]="{
+              'bg-[#7054C8] text-white shadow-xs': taskService.activeFilter() === 'All',
+              'text-[#6b5d82] hover:text-[#7054C8]': taskService.activeFilter() !== 'All'
+            }"
+          >
+            All ({{ taskService.userStatistics().totalTasks }})
+          </button>
+
+          <button
+            type="button"
+            (click)="setFilter('Pending')"
+            class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all"
+            [ngClass]="{
+              'bg-[#7054C8] text-white shadow-xs': taskService.activeFilter() === 'Pending',
+              'text-[#6b5d82] hover:text-[#7054C8]': taskService.activeFilter() !== 'Pending'
+            }"
+          >
+            Pending ({{ taskService.userStatistics().pendingTasks }})
+          </button>
+
+          <button
+            type="button"
+            (click)="setFilter('Completed')"
+            class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all"
+            [ngClass]="{
+              'bg-[#7054C8] text-white shadow-xs': taskService.activeFilter() === 'Completed',
+              'text-[#6b5d82] hover:text-[#7054C8]': taskService.activeFilter() !== 'Completed'
+            }"
+          >
+            Completed ({{ taskService.userStatistics().completedTasks }})
+          </button>
+        </div>
+
+        <!-- Add Task Primary Button -->
+        <button
+          type="button"
+          (click)="openAddTaskDialog()"
+          class="px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm text-white bg-gradient-to-r from-[#7054C8] via-[#7F63DE] to-[#A5A0F5] hover:opacity-95 active:scale-[0.98] shadow-md shadow-purple-500/20 transition-all flex items-center gap-2 cursor-pointer ml-auto"
+        >
+          <i class="pi pi-plus text-xs"></i>
+          <span>Add Task</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- TASK LIST CARDS -->
+    <section>
+      @if (taskService.filteredUserTasks().length > 0) {
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5">
+          @for (task of taskService.filteredUserTasks(); track task.id) {
+            <div
+              class="bg-[#FFF9F2] rounded-2xl p-5 border border-purple-100 shadow-sm hover:shadow-md transition-all duration-200 flex flex-col justify-between group"
+              [ngClass]="{
+                'border-l-4 border-l-emerald-500 bg-white/70': task.status === 'Completed',
+                'border-l-4 border-l-[#7054C8]': task.status === 'Pending'
+              }"
+            >
+              <!-- Card Header -->
+              <div>
+                <div class="flex items-start justify-between gap-3 mb-2.5">
+                  <!-- Checkbox & Title -->
+                  <div class="flex items-start gap-2.5 flex-1 min-w-0">
+                    <button
+                      type="button"
+                      (click)="onToggleStatus(task, $event)"
+                      class="w-5 h-5 mt-0.5 rounded-md border flex items-center justify-center transition-colors shrink-0 cursor-pointer"
+                      [ngClass]="{
+                        'bg-emerald-500 border-emerald-500 text-white': task.status === 'Completed',
+                        'border-purple-300 hover:border-[#7054C8] bg-white text-transparent': task.status === 'Pending'
+                      }"
+                      [title]="task.status === 'Completed' ? 'Mark as Pending' : 'Mark as Completed'"
+                    >
+                      <i class="pi pi-check text-[10px] font-bold"></i>
+                    </button>
+
+                    <h3
+                      class="text-sm sm:text-base font-bold leading-snug break-words"
+                      [ngClass]="{
+                        'line-through text-[#6b5d82]/70': task.status === 'Completed',
+                        'text-[#332747]': task.status === 'Pending'
+                      }"
+                    >
+                      {{ task.title }}
+                    </h3>
+                  </div>
+
+                  <!-- Priority Badge -->
+                  <span
+                    class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md shrink-0"
+                    [ngClass]="{
+                      'bg-rose-100 text-rose-700': task.priority === 'High',
+                      'bg-amber-100 text-amber-800': task.priority === 'Medium',
+                      'bg-emerald-100 text-emerald-800': task.priority === 'Low'
+                    }"
+                  >
+                    {{ task.priority }}
+                  </span>
+                </div>
+
+                <!-- Description -->
+                <p
+                  class="text-xs sm:text-sm text-[#6b5d82] line-clamp-3 mb-4 leading-relaxed pl-7.5"
+                  [ngClass]="{ 'opacity-70': task.status === 'Completed' }"
+                >
+                  {{ task.description }}
+                </p>
+              </div>
+
+              <!-- Card Footer -->
+              <div class="pt-3 border-t border-purple-100/80 flex items-center justify-between text-xs pl-7.5">
+                <!-- Due Date Badge -->
+                <div class="flex items-center gap-1.5 text-[#6b5d82]">
+                  <i class="pi pi-calendar text-[11px] text-[#7054C8]"></i>
+                  <span class="font-medium text-[11px]">Due {{ task.dueDate }}</span>
+                </div>
+
+                <!-- Action Buttons: Edit & Delete -->
+                <div class="flex items-center gap-1.5">
+                  <button
+                    type="button"
+                    (click)="openEditTaskDialog(task)"
+                    class="w-7 h-7 rounded-lg bg-white hover:bg-purple-50 text-[#7054C8] border border-purple-200 flex items-center justify-center transition-colors cursor-pointer"
+                    title="Edit task"
+                  >
+                    <i class="pi pi-pencil text-xs"></i>
+                  </button>
+
+                  <button
+                    type="button"
+                    (click)="onDeleteTask(task, $event)"
+                    class="w-7 h-7 rounded-lg bg-white hover:bg-rose-50 text-rose-600 border border-rose-200 flex items-center justify-center transition-colors cursor-pointer"
+                    title="Delete task"
+                  >
+                    <i class="pi pi-trash text-xs"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      } @else {
+        <!-- EMPTY STATE CARD -->
+        <div class="glass-card rounded-3xl p-10 text-center max-w-lg mx-auto border border-white/80 my-8">
+          <div class="w-16 h-16 mx-auto rounded-3xl bg-gradient-to-tr from-purple-100 to-pink-100 text-[#7054C8] flex items-center justify-center mb-4 shadow-inner">
+            <i class="pi pi-inbox text-3xl"></i>
+          </div>
+          <h3 class="text-xl font-bold text-[#332747] mb-1.5">No Tasks Found</h3>
+          <p class="text-sm text-[#6b5d82] mb-6 max-w-xs mx-auto">
+            @if (taskService.searchQuery()) {
+              No tasks matched your search "{{ taskService.searchQuery() }}". Try adjusting your search keywords.
+            } @else if (taskService.activeFilter() !== 'All') {
+              You don't have any {{ taskService.activeFilter().toLowerCase() }} tasks right now.
+            } @else {
+              Your personal task board is empty! Create your first task to start organizing your priorities.
+            }
+          </p>
+          <div class="flex justify-center gap-3">
+            @if (taskService.searchQuery() || taskService.activeFilter() !== 'All') {
+              <button
+                type="button"
+                (click)="taskService.searchQuery.set(''); setFilter('All')"
+                class="px-4 py-2 rounded-xl text-xs font-bold bg-white text-[#7054C8] border border-purple-200 hover:bg-purple-50 transition-colors"
+              >
+                Reset Filters
+              </button>
+            }
+            <button
+              type="button"
+              (click)="openAddTaskDialog()"
+              class="px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-[#7054C8] to-[#A5A0F5] hover:opacity-95 shadow-md shadow-purple-500/20 transition-all flex items-center gap-1.5 cursor-pointer"
+            >
+              <i class="pi pi-plus text-xs"></i>
+              <span>Create New Task</span>
+            </button>
+          </div>
+        </div>
+      }
+    </section>
+  </main>
+</div>
+
+<!-- ADD / EDIT TASK MODAL DIALOG -->
+<p-dialog
+  [header]="isEditing() ? 'Edit Task' : 'Create New Task'"
+  [(visible)]="isDialogVisible"
+  [modal]="true"
+  [style]="{ width: '90vw', maxWidth: '520px' }"
+  [draggable]="false"
+  [resizable]="false"
+  [dismissableMask]="true"
+>
+  <form [formGroup]="taskForm" (ngSubmit)="onSaveTask()" class="space-y-4 pt-2">
+    <!-- Task Title Field -->
+    <div>
+      <label for="task-title" class="block text-xs font-bold text-[#332747] uppercase tracking-wider mb-1">
+        Task Title
+      </label>
+      <input
+        id="task-title"
+        type="text"
+        formControlName="title"
+        placeholder="e.g. Design User Dashboard Mockups"
+        class="w-full px-3.5 py-2.5 bg-white rounded-xl border text-sm text-[#332747] placeholder-[#A5A0F5]/70 focus:outline-hidden focus:ring-3 focus:ring-[#7054C8]/20 focus:border-[#7054C8] transition-all"
+        [ngClass]="{
+          'border-rose-400 bg-rose-50/30': f['title'].touched && f['title'].invalid,
+          'border-purple-200': !f['title'].touched || f['title'].valid
+        }"
+      />
+      @if (f['title'].touched && f['title'].invalid) {
+        <p class="text-xs text-rose-600 mt-1">Title is required (minimum 3 characters).</p>
+      }
+    </div>
+
+    <!-- Description Field -->
+    <div>
+      <label for="task-desc" class="block text-xs font-bold text-[#332747] uppercase tracking-wider mb-1">
+        Description
+      </label>
+      <textarea
+        id="task-desc"
+        rows="3"
+        formControlName="description"
+        placeholder="Provide additional context or requirements..."
+        class="w-full px-3.5 py-2.5 bg-white rounded-xl border text-sm text-[#332747] placeholder-[#A5A0F5]/70 focus:outline-hidden focus:ring-3 focus:ring-[#7054C8]/20 focus:border-[#7054C8] transition-all resize-none"
+        [ngClass]="{
+          'border-rose-400 bg-rose-50/30': f['description'].touched && f['description'].invalid,
+          'border-purple-200': !f['description'].touched || f['description'].valid
+        }"
+      ></textarea>
+      @if (f['description'].touched && f['description'].invalid) {
+        <p class="text-xs text-rose-600 mt-1">Description is required.</p>
+      }
+    </div>
+
+    <!-- Priority and Due Date Row -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+      <!-- Priority Dropdown -->
+      <div>
+        <label for="task-priority" class="block text-xs font-bold text-[#332747] uppercase tracking-wider mb-1">
+          Priority
+        </label>
+        <select
+          id="task-priority"
+          formControlName="priority"
+          class="w-full px-3.5 py-2.5 bg-white rounded-xl border border-purple-200 text-sm text-[#332747] focus:outline-hidden focus:ring-3 focus:ring-[#7054C8]/20 focus:border-[#7054C8] transition-all"
+        >
+          @for (p of priorities; track p) {
+            <option [value]="p">{{ p }} Priority</option>
+          }
+        </select>
+      </div>
+
+      <!-- Due Date Field -->
+      <div>
+        <label for="task-due-date" class="block text-xs font-bold text-[#332747] uppercase tracking-wider mb-1">
+          Due Date
+        </label>
+        <input
+          id="task-due-date"
+          type="date"
+          formControlName="dueDate"
+          class="w-full px-3.5 py-2.5 bg-white rounded-xl border border-purple-200 text-sm text-[#332747] focus:outline-hidden focus:ring-3 focus:ring-[#7054C8]/20 focus:border-[#7054C8] transition-all"
+        />
+      </div>
+    </div>
+
+    <!-- Modal Footer Actions -->
+    <div class="pt-4 mt-4 border-t border-purple-100 flex items-center justify-end gap-3">
+      <button
+        type="button"
+        (click)="closeDialog()"
+        class="px-4 py-2.5 rounded-xl text-xs font-bold text-[#6b5d82] hover:bg-purple-50 transition-colors"
+      >
+        Cancel
+      </button>
+
+      <button
+        type="submit"
+        [disabled]="isSubmitting()"
+        class="px-5 py-2.5 rounded-xl font-bold text-xs sm:text-sm text-white bg-gradient-to-r from-[#7054C8] to-[#A5A0F5] hover:opacity-95 shadow-md shadow-purple-500/20 transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+      >
+        @if (isSubmitting()) {
+          <i class="pi pi-spin pi-spinner text-xs"></i>
+          <span>Saving...</span>
+        } @else {
+          <span>{{ isEditing() ? 'Save Changes' : 'Create Task' }}</span>
+        }
+      </button>
+    </div>
+  </form>
+</p-dialog>

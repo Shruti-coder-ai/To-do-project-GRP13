@@ -1,0 +1,621 @@
+<div class="min-h-screen flex bg-gradient-to-br from-[#EDE7FF] via-[#F5EEFF] to-[#FCE7F3] relative overflow-x-hidden">
+
+  <!-- Sidebar Component -->
+  <app-sidebar
+    [isOpen]="isSidebarOpen()"
+    [activeAdminTab]="activeTab()"
+    (closeSidebar)="toggleSidebar()"
+    (adminTabSelected)="activeTab.set($event)"
+  ></app-sidebar>
+
+  <!-- Main Content Area -->
+  <main class="flex-1 flex flex-col p-4 sm:p-6 lg:p-8 min-w-0 overflow-y-auto">
+
+    <!-- Navbar Header -->
+    <app-navbar
+      pageTitle="System Administration"
+      [pageSubtitle]="'Welcome, ' + (authService.currentUser()?.name || 'Administrator') + '! Platform analytics, user governance, and task oversight.'"
+      (toggleSidebar)="toggleSidebar()"
+    ></app-navbar>
+
+    <!-- ADMIN OVERVIEW STATISTICS CARDS -->
+    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 mb-8">
+      <!-- Total Registered Users Card -->
+      <div class="glass-card p-5 rounded-2xl flex items-center justify-between border border-white/70 shadow-sm hover:shadow-md transition-shadow">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-[#6b5d82]">Total Users</span>
+          <p class="text-2xl sm:text-3xl font-extrabold text-[#332747] mt-1">
+            {{ userService.totalUsers() }}
+          </p>
+          <span class="text-[11px] text-[#7054C8] font-medium mt-1 inline-block">
+            {{ userService.activeUsers() }} active accounts
+          </span>
+        </div>
+        <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#7054C8] to-[#A5A0F5] text-white flex items-center justify-center shadow-md shadow-purple-500/20">
+          <i class="pi pi-users text-xl"></i>
+        </div>
+      </div>
+
+      <!-- Total Tasks Card -->
+      <div class="glass-card p-5 rounded-2xl flex items-center justify-between border border-white/70 shadow-sm hover:shadow-md transition-shadow">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-[#6b5d82]">Total Tasks</span>
+          <p class="text-2xl sm:text-3xl font-extrabold text-[#7054C8] mt-1">
+            {{ taskService.adminTaskStatistics().totalTasks }}
+          </p>
+          <span class="text-[11px] text-[#7054C8] font-medium mt-1 inline-block">Platform-wide total</span>
+        </div>
+        <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#A5A0F5] to-indigo-400 text-white flex items-center justify-center shadow-md shadow-indigo-500/20">
+          <i class="pi pi-check-square text-xl"></i>
+        </div>
+      </div>
+
+      <!-- Pending Tasks Card -->
+      <div class="glass-card p-5 rounded-2xl flex items-center justify-between border border-white/70 shadow-sm hover:shadow-md transition-shadow">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-[#6b5d82]">Pending Tasks</span>
+          <p class="text-2xl sm:text-3xl font-extrabold text-amber-600 mt-1">
+            {{ taskService.adminTaskStatistics().pendingTasks }}
+          </p>
+          <span class="text-[11px] text-amber-700 font-medium mt-1 inline-block">In-progress items</span>
+        </div>
+        <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-400 to-orange-400 text-white flex items-center justify-center shadow-md shadow-amber-500/20">
+          <i class="pi pi-clock text-xl"></i>
+        </div>
+      </div>
+
+      <!-- Completed Tasks Card -->
+      <div class="glass-card p-5 rounded-2xl flex items-center justify-between border border-white/70 shadow-sm hover:shadow-md transition-shadow">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-[#6b5d82]">Completed Tasks</span>
+          <p class="text-2xl sm:text-3xl font-extrabold text-emerald-600 mt-1">
+            {{ taskService.adminTaskStatistics().completedTasks }}
+          </p>
+          <span class="text-[11px] text-emerald-700 font-medium mt-1 inline-block">Resolved tasks</span>
+        </div>
+        <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-400 text-white flex items-center justify-center shadow-md shadow-emerald-500/20">
+          <i class="pi pi-verified text-xl"></i>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION NAVIGATION TABS -->
+    <div class="flex items-center gap-2 p-1.5 bg-white/80 rounded-2xl border border-purple-200/80 mb-6 shadow-xs max-w-fit">
+      <button
+        type="button"
+        (click)="activeTab.set('overview')"
+        class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 cursor-pointer"
+        [ngClass]="{
+          'bg-[#7054C8] text-white shadow-xs': activeTab() === 'overview',
+          'text-[#6b5d82] hover:text-[#7054C8]': activeTab() !== 'overview'
+        }"
+      >
+        <i class="pi pi-chart-pie"></i>
+        <span>Analytics Charts</span>
+      </button>
+
+      <button
+        type="button"
+        (click)="activeTab.set('users')"
+        class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 cursor-pointer"
+        [ngClass]="{
+          'bg-[#7054C8] text-white shadow-xs': activeTab() === 'users',
+          'text-[#6b5d82] hover:text-[#7054C8]': activeTab() !== 'users'
+        }"
+      >
+        <i class="pi pi-users"></i>
+        <span>User Management ({{ userService.totalUsers() }})</span>
+      </button>
+
+      <button
+        type="button"
+        (click)="activeTab.set('tasks')"
+        class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 cursor-pointer"
+        [ngClass]="{
+          'bg-[#7054C8] text-white shadow-xs': activeTab() === 'tasks',
+          'text-[#6b5d82] hover:text-[#7054C8]': activeTab() !== 'tasks'
+        }"
+      >
+        <i class="pi pi-list-check"></i>
+        <span>All Platform Tasks ({{ taskService.allTasks().length }})</span>
+      </button>
+    </div>
+
+    <!-- TAB 1: CHART.JS ANALYTICS OVERVIEW -->
+    @if (activeTab() === 'overview') {
+      <section class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8 animate-fadeIn">
+        <!-- Status Doughnut Chart -->
+        <div class="glass-card p-6 rounded-3xl border border-white/80 shadow-sm flex flex-col justify-between">
+          <div class="mb-4">
+            <div class="flex items-center justify-between">
+              <h2 class="text-base sm:text-lg font-bold text-[#332747] flex items-center gap-2">
+                <i class="pi pi-chart-pie text-[#7054C8]"></i>
+                <span>Task Status Breakdown</span>
+              </h2>
+              <span class="text-xs bg-purple-100 text-[#7054C8] font-bold px-2.5 py-1 rounded-full">
+                {{ taskService.adminTaskStatistics().totalTasks }} Total
+              </span>
+            </div>
+            <p class="text-xs text-[#6b5d82] mt-1">
+              Distribution of pending versus completed tasks across all user accounts.
+            </p>
+          </div>
+
+          <div class="h-64 relative flex items-center justify-center">
+            @if (taskService.adminTaskStatistics().totalTasks > 0) {
+              <p-chart
+                type="doughnut"
+                [data]="statusChartData()"
+                [options]="statusChartOptions"
+                height="240px"
+              ></p-chart>
+            } @else {
+              <div class="text-center text-sm text-[#6b5d82]">
+                <i class="pi pi-chart-pie text-3xl mb-2 text-purple-300 block"></i>
+                No task data to visualize
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Priority Distribution Bar Chart -->
+        <div class="glass-card p-6 rounded-3xl border border-white/80 shadow-sm flex flex-col justify-between">
+          <div class="mb-4">
+            <div class="flex items-center justify-between">
+              <h2 class="text-base sm:text-lg font-bold text-[#332747] flex items-center gap-2">
+                <i class="pi pi-chart-bar text-[#7054C8]"></i>
+                <span>Task Priority Distribution</span>
+              </h2>
+              <span class="text-xs bg-purple-100 text-[#7054C8] font-bold px-2.5 py-1 rounded-full">
+                By Urgency
+              </span>
+            </div>
+            <p class="text-xs text-[#6b5d82] mt-1">
+              Comparative breakdown of tasks by Low, Medium, and High priority tiers.
+            </p>
+          </div>
+
+          <div class="h-64 relative flex items-center justify-center">
+            <p-chart
+              type="bar"
+              [data]="priorityChartData()"
+              [options]="priorityChartOptions"
+              height="240px"
+            ></p-chart>
+          </div>
+        </div>
+      </section>
+    }
+
+    <!-- TAB 2: USER MANAGEMENT SECTION -->
+    @if (activeTab() === 'users') {
+      <section class="glass-card p-6 rounded-3xl border border-white/80 shadow-sm animate-fadeIn">
+        <!-- Toolbar for Users -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+          <!-- Search box -->
+          <div class="relative flex-1 max-w-md">
+            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#6b5d82]">
+              <i class="pi pi-search text-sm"></i>
+            </div>
+            <input
+              type="text"
+              [ngModel]="userSearchQuery()"
+              (ngModelChange)="userSearchQuery.set($event)"
+              placeholder="Search users by name or email..."
+              class="w-full pl-10 pr-4 py-2.5 bg-white rounded-xl border border-purple-200 text-sm text-[#332747] placeholder-[#A5A0F5]/70 focus:outline-hidden focus:ring-3 focus:ring-[#7054C8]/20 focus:border-[#7054C8] transition-all"
+            />
+          </div>
+
+          <!-- Status Filters -->
+          <div class="flex items-center bg-white p-1 rounded-xl border border-purple-200 shadow-xs">
+            <button
+              type="button"
+              (click)="userStatusFilter.set('ALL')"
+              class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all"
+              [ngClass]="{
+                'bg-[#7054C8] text-white shadow-xs': userStatusFilter() === 'ALL',
+                'text-[#6b5d82] hover:text-[#7054C8]': userStatusFilter() !== 'ALL'
+              }"
+            >
+              All
+            </button>
+            <button
+              type="button"
+              (click)="userStatusFilter.set('ACTIVE')"
+              class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all"
+              [ngClass]="{
+                'bg-emerald-600 text-white shadow-xs': userStatusFilter() === 'ACTIVE',
+                'text-[#6b5d82] hover:text-emerald-600': userStatusFilter() !== 'ACTIVE'
+              }"
+            >
+              Active
+            </button>
+            <button
+              type="button"
+              (click)="userStatusFilter.set('INACTIVE')"
+              class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all"
+              [ngClass]="{
+                'bg-rose-600 text-white shadow-xs': userStatusFilter() === 'INACTIVE',
+                'text-[#6b5d82] hover:text-rose-600': userStatusFilter() !== 'INACTIVE'
+              }"
+            >
+              Inactive
+            </button>
+          </div>
+        </div>
+
+        <!-- Users Table -->
+        <div class="overflow-x-auto rounded-2xl border border-purple-100 bg-white/80 shadow-xs">
+          <table class="w-full text-left border-collapse text-sm">
+            <thead>
+              <tr class="bg-gradient-to-r from-purple-50 to-pink-50 text-xs font-bold uppercase tracking-wider text-[#6b5d82] border-b border-purple-100">
+                <th class="py-3.5 px-4 sm:px-6">User Profile</th>
+                <th class="py-3.5 px-4">Role</th>
+                <th class="py-3.5 px-4">Account Status</th>
+                <th class="py-3.5 px-4 hidden md:table-cell">Registered</th>
+                <th class="py-3.5 px-4 sm:px-6 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-purple-50">
+              @for (user of filteredUsers(); track user.id) {
+                <tr class="hover:bg-purple-50/50 transition-colors">
+                  <!-- Name & Email -->
+                  <td class="py-3.5 px-4 sm:px-6">
+                    <div class="flex items-center gap-3">
+                      <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#7054C8] to-[#A5A0F5] text-white flex items-center justify-center font-bold text-xs shadow-xs shrink-0">
+                        {{ user.name.charAt(0).toUpperCase() }}
+                      </div>
+                      <div class="min-w-0">
+                        <p class="font-bold text-[#332747] text-sm truncate">{{ user.name }}</p>
+                        <p class="text-xs text-[#6b5d82] truncate">{{ user.email }}</p>
+                      </div>
+                    </div>
+                  </td>
+
+                  <!-- Role Badge -->
+                  <td class="py-3.5 px-4">
+                    <span
+                      class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md"
+                      [ngClass]="{
+                        'bg-purple-100 text-[#7054C8]': user.role === 'USER',
+                        'bg-indigo-100 text-indigo-700': user.role === 'ADMIN'
+                      }"
+                    >
+                      {{ user.role }}
+                    </span>
+                  </td>
+
+                  <!-- Status Badge -->
+                  <td class="py-3.5 px-4">
+                    <span
+                      class="inline-flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-0.5 rounded-full"
+                      [ngClass]="{
+                        'bg-emerald-100 text-emerald-800': user.status === 'ACTIVE',
+                        'bg-rose-100 text-rose-700': user.status === 'INACTIVE'
+                      }"
+                    >
+                      <span
+                        class="w-1.5 h-1.5 rounded-full"
+                        [ngClass]="{
+                          'bg-emerald-500': user.status === 'ACTIVE',
+                          'bg-rose-500': user.status === 'INACTIVE'
+                        }"
+                      ></span>
+                      {{ user.status }}
+                    </span>
+                  </td>
+
+                  <!-- Joined Date -->
+                  <td class="py-3.5 px-4 text-xs text-[#6b5d82] hidden md:table-cell">
+                    {{ user.createdAt | date: 'mediumDate' }}
+                  </td>
+
+                  <!-- Actions -->
+                  <td class="py-3.5 px-4 sm:px-6 text-right">
+                    <div class="inline-flex items-center gap-2">
+                      <button
+                        type="button"
+                        (click)="viewUserDetails(user)"
+                        class="px-2.5 py-1.5 rounded-lg text-xs font-bold text-[#7054C8] hover:bg-purple-100 transition-colors"
+                        title="View user details"
+                      >
+                        <i class="pi pi-eye mr-1"></i>
+                        <span>Details</span>
+                      </button>
+
+                      @if (user.role !== 'ADMIN') {
+                        <button
+                          type="button"
+                          (click)="toggleAccountStatus(user)"
+                          class="px-2.5 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer"
+                          [ngClass]="{
+                            'text-rose-600 hover:bg-rose-50': user.status === 'ACTIVE',
+                            'text-emerald-700 hover:bg-emerald-50': user.status === 'INACTIVE'
+                          }"
+                        >
+                          <i [class]="user.status === 'ACTIVE' ? 'pi pi-ban' : 'pi pi-check'" class="mr-1"></i>
+                          <span>{{ user.status === 'ACTIVE' ? 'Deactivate' : 'Activate' }}</span>
+                        </button>
+                      } @else {
+                        <span class="text-[11px] text-[#6b5d82] italic px-2">Protected</span>
+                      }
+                    </div>
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="5" class="py-8 text-center text-[#6b5d82] text-sm">
+                    No users found matching your search.
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+    }
+
+    <!-- TAB 3: ALL PLATFORM TASKS SECTION -->
+    @if (activeTab() === 'tasks') {
+      <section class="glass-card p-6 rounded-3xl border border-white/80 shadow-sm animate-fadeIn">
+        <!-- Toolbar for All Tasks -->
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+          <!-- Search box -->
+          <div class="relative flex-1 max-w-md">
+            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#6b5d82]">
+              <i class="pi pi-search text-sm"></i>
+            </div>
+            <input
+              type="text"
+              [ngModel]="taskSearchQuery()"
+              (ngModelChange)="taskSearchQuery.set($event)"
+              placeholder="Search tasks by title, keyword, or user..."
+              class="w-full pl-10 pr-4 py-2.5 bg-white rounded-xl border border-purple-200 text-sm text-[#332747] placeholder-[#A5A0F5]/70 focus:outline-hidden focus:ring-3 focus:ring-[#7054C8]/20 focus:border-[#7054C8] transition-all"
+            />
+          </div>
+
+          <!-- Status & Priority Filters -->
+          <div class="flex flex-wrap items-center gap-3">
+            <!-- Priority selector -->
+            <select
+              [ngModel]="taskPriorityFilter()"
+              (ngModelChange)="taskPriorityFilter.set($event)"
+              class="px-3 py-2 bg-white rounded-xl border border-purple-200 text-xs font-bold text-[#332747] focus:outline-hidden"
+            >
+              <option value="ALL">All Priorities</option>
+              <option value="High">High Priority</option>
+              <option value="Medium">Medium Priority</option>
+              <option value="Low">Low Priority</option>
+            </select>
+
+            <!-- Status selector -->
+            <select
+              [ngModel]="taskStatusFilter()"
+              (ngModelChange)="taskStatusFilter.set($event)"
+              class="px-3 py-2 bg-white rounded-xl border border-purple-200 text-xs font-bold text-[#332747] focus:outline-hidden"
+            >
+              <option value="ALL">All Statuses</option>
+              <option value="Pending">Pending</option>
+              <option value="Completed">Completed</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- All Tasks Table -->
+        <div class="overflow-x-auto rounded-2xl border border-purple-100 bg-white/80 shadow-xs">
+          <table class="w-full text-left border-collapse text-sm">
+            <thead>
+              <tr class="bg-gradient-to-r from-purple-50 to-pink-50 text-xs font-bold uppercase tracking-wider text-[#6b5d82] border-b border-purple-100">
+                <th class="py-3.5 px-4 sm:px-6">Task Title</th>
+                <th class="py-3.5 px-4">Created By</th>
+                <th class="py-3.5 px-4">Priority</th>
+                <th class="py-3.5 px-4">Due Date</th>
+                <th class="py-3.5 px-4">Status</th>
+                <th class="py-3.5 px-4 sm:px-6 text-right">Action</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-purple-50">
+              @for (task of filteredAllTasks(); track task.id) {
+                <tr class="hover:bg-purple-50/50 transition-colors">
+                  <!-- Title & Description -->
+                  <td class="py-3.5 px-4 sm:px-6">
+                    <p class="font-bold text-[#332747] text-sm">{{ task.title }}</p>
+                    <p class="text-xs text-[#6b5d82] truncate max-w-xs">{{ task.description }}</p>
+                  </td>
+
+                  <!-- Creator / User Attribution -->
+                  <td class="py-3.5 px-4">
+                    <div class="flex items-center gap-2">
+                      <div class="w-6 h-6 rounded-md bg-purple-100 text-[#7054C8] flex items-center justify-center font-bold text-[10px]">
+                        {{ (task.userName || 'U').charAt(0).toUpperCase() }}
+                      </div>
+                      <span class="text-xs font-medium text-[#332747]">{{ task.userName || 'User' }}</span>
+                    </div>
+                  </td>
+
+                  <!-- Priority Badge -->
+                  <td class="py-3.5 px-4">
+                    <span
+                      class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md"
+                      [ngClass]="{
+                        'bg-rose-100 text-rose-700': task.priority === 'High',
+                        'bg-amber-100 text-amber-800': task.priority === 'Medium',
+                        'bg-emerald-100 text-emerald-800': task.priority === 'Low'
+                      }"
+                    >
+                      {{ task.priority }}
+                    </span>
+                  </td>
+
+                  <!-- Due Date -->
+                  <td class="py-3.5 px-4 text-xs text-[#6b5d82]">
+                    {{ task.dueDate }}
+                  </td>
+
+                  <!-- Status Badge -->
+                  <td class="py-3.5 px-4">
+                    <span
+                      class="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full"
+                      [ngClass]="{
+                        'bg-emerald-100 text-emerald-800': task.status === 'Completed',
+                        'bg-amber-100 text-amber-800': task.status === 'Pending'
+                      }"
+                    >
+                      {{ task.status }}
+                    </span>
+                  </td>
+
+                  <!-- Actions -->
+                  <td class="py-3.5 px-4 sm:px-6 text-right">
+                    <button
+                      type="button"
+                      (click)="viewTaskDetails(task)"
+                      class="px-2.5 py-1.5 rounded-lg text-xs font-bold text-[#7054C8] hover:bg-purple-100 transition-colors cursor-pointer"
+                    >
+                      <i class="pi pi-eye mr-1"></i>
+                      <span>Details</span>
+                    </button>
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="6" class="py-8 text-center text-[#6b5d82] text-sm">
+                    No platform tasks matched your filters.
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+    }
+
+  </main>
+</div>
+
+<!-- USER DETAILS MODAL DIALOG -->
+<p-dialog
+  header="User Profile Details"
+  [(visible)]="isUserDetailVisible"
+  [modal]="true"
+  [style]="{ width: '90vw', maxWidth: '480px' }"
+  [draggable]="false"
+  [resizable]="false"
+  [dismissableMask]="true"
+>
+  @if (selectedUser(); as user) {
+    <div class="space-y-4 pt-2">
+      <div class="flex items-center gap-3.5 p-4 rounded-2xl bg-purple-50/60 border border-purple-100">
+        <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#7054C8] to-[#A5A0F5] text-white flex items-center justify-center font-bold text-lg shadow-xs">
+          {{ user.name.charAt(0).toUpperCase() }}
+        </div>
+        <div>
+          <h4 class="font-extrabold text-[#332747] text-base">{{ user.name }}</h4>
+          <p class="text-xs text-[#6b5d82]">{{ user.email }}</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 text-xs">
+        <div class="p-3 rounded-xl bg-white border border-purple-100">
+          <span class="text-[#6b5d82] block mb-1 font-semibold uppercase tracking-wider text-[10px]">User Role</span>
+          <span class="font-bold text-[#332747]">{{ user.role }}</span>
+        </div>
+        <div class="p-3 rounded-xl bg-white border border-purple-100">
+          <span class="text-[#6b5d82] block mb-1 font-semibold uppercase tracking-wider text-[10px]">Account Status</span>
+          <span
+            class="font-bold"
+            [ngClass]="user.status === 'ACTIVE' ? 'text-emerald-600' : 'text-rose-600'"
+          >
+            {{ user.status }}
+          </span>
+        </div>
+        <div class="p-3 rounded-xl bg-white border border-purple-100 col-span-2">
+          <span class="text-[#6b5d82] block mb-1 font-semibold uppercase tracking-wider text-[10px]">Account ID</span>
+          <span class="font-mono text-[11px] text-[#332747]">{{ user.id }}</span>
+        </div>
+        <div class="p-3 rounded-xl bg-white border border-purple-100 col-span-2">
+          <span class="text-[#6b5d82] block mb-1 font-semibold uppercase tracking-wider text-[10px]">Registration Timestamp</span>
+          <span class="text-[#332747] font-medium">{{ user.createdAt }}</span>
+        </div>
+      </div>
+
+      <div class="pt-3 border-t border-purple-100 flex justify-end">
+        <button
+          type="button"
+          (click)="isUserDetailVisible.set(false)"
+          class="px-4 py-2 rounded-xl text-xs font-bold text-white bg-[#7054C8] hover:bg-[#5e43b3] transition-colors"
+        >
+          Close
+        </button>
+      </div>
+    </div>
+  }
+</p-dialog>
+
+<!-- TASK DETAILS MODAL DIALOG -->
+<p-dialog
+  header="Platform Task Details"
+  [(visible)]="isTaskDetailVisible"
+  [modal]="true"
+  [style]="{ width: '90vw', maxWidth: '500px' }"
+  [draggable]="false"
+  [resizable]="false"
+  [dismissableMask]="true"
+>
+  @if (selectedTask(); as task) {
+    <div class="space-y-4 pt-2">
+      <div>
+        <span
+          class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md inline-block mb-2"
+          [ngClass]="{
+            'bg-rose-100 text-rose-700': task.priority === 'High',
+            'bg-amber-100 text-amber-800': task.priority === 'Medium',
+            'bg-emerald-100 text-emerald-800': task.priority === 'Low'
+          }"
+        >
+          {{ task.priority }} Priority
+        </span>
+        <h4 class="font-extrabold text-[#332747] text-lg leading-tight">{{ task.title }}</h4>
+      </div>
+
+      <div class="p-3.5 rounded-xl bg-white border border-purple-100 text-xs text-[#332747] leading-relaxed">
+        <span class="text-[10px] uppercase font-bold text-[#6b5d82] block mb-1">Description</span>
+        {{ task.description }}
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 text-xs">
+        <div class="p-3 rounded-xl bg-white border border-purple-100">
+          <span class="text-[#6b5d82] block mb-1 font-semibold uppercase tracking-wider text-[10px]">Creator</span>
+          <span class="font-bold text-[#332747]">{{ task.userName || 'User' }}</span>
+        </div>
+        <div class="p-3 rounded-xl bg-white border border-purple-100">
+          <span class="text-[#6b5d82] block mb-1 font-semibold uppercase tracking-wider text-[10px]">Status</span>
+          <span
+            class="font-bold"
+            [ngClass]="task.status === 'Completed' ? 'text-emerald-600' : 'text-amber-600'"
+          >
+            {{ task.status }}
+          </span>
+        </div>
+        <div class="p-3 rounded-xl bg-white border border-purple-100">
+          <span class="text-[#6b5d82] block mb-1 font-semibold uppercase tracking-wider text-[10px]">Due Date</span>
+          <span class="font-medium text-[#332747]">{{ task.dueDate }}</span>
+        </div>
+        <div class="p-3 rounded-xl bg-white border border-purple-100">
+          <span class="text-[#6b5d82] block mb-1 font-semibold uppercase tracking-wider text-[10px]">Task ID</span>
+          <span class="font-mono text-[11px] text-[#332747]">{{ task.id }}</span>
+        </div>
+      </div>
+
+      <div class="pt-3 border-t border-purple-100 flex justify-end">
+        <button
+          type="button"
+          (click)="isTaskDetailVisible.set(false)"
+          class="px-4 py-2 rounded-xl text-xs font-bold text-white bg-[#7054C8] hover:bg-[#5e43b3] transition-colors"
+        >
+          Close
+        </button>
+      </div>
+    </div>
+  }
+</p-dialog>
