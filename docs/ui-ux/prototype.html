@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TaskFlow — UI prototype</title>
+<link rel="stylesheet" href="../../frontend/styles/theme.css">
+<style>
+.screen{display:none}.screen.on{display:block}
+.top{display:none;position:sticky;top:0;z-index:5;background:rgba(255,249,242,.85);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);padding:12px 20px;align-items:center;gap:14px}
+.top.on{display:flex}.top .sp{flex:1}
+.logo{display:inline-flex;align-items:center;gap:10px;font:700 1.2rem var(--font-head)}
+.logo i{width:32px;height:32px;border-radius:10px;background:var(--primary);color:#fff;display:grid;place-items:center;font-style:normal}
+main{max-width:1040px;margin:0 auto;padding:28px 16px 48px}
+.head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:24px}.head h1{margin:0}
+.kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:16px}
+.kpi strong{display:block;font:700 2rem/1.2 var(--font-head)}
+.bar{height:8px;background:var(--lav);border-radius:99px;margin-top:8px;overflow:hidden}.bar i{display:block;height:100%;background:var(--primary);border-radius:99px}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}.toolbar input{max-width:240px;margin-left:auto}
+.charts{display:grid;gap:14px;margin-bottom:16px}
+.donut{width:150px;height:150px;border-radius:50%;margin:0 auto 12px;display:grid;place-items:center}
+.donut div{width:104px;height:104px;border-radius:50%;background:var(--cream);display:grid;place-items:center;font:700 1.4rem var(--font-head)}
+.bars{display:flex;align-items:flex-end;gap:18px;height:150px;padding:0 16px 22px}
+.bars span{flex:1;border-radius:8px 8px 0 0;position:relative;background:var(--peri)}
+.bars small{position:absolute;bottom:-22px;left:0;right:0;text-align:center;color:var(--muted);font-size:.8125rem}
+.legend{display:flex;justify-content:center;gap:16px;font-size:.875rem;color:var(--muted)}
+.auth{min-height:100vh;display:grid}
+.hero{padding:40px 28px;color:#fff;background:var(--primary)}
+.hero h2{font-size:1.9rem;max-width:14ch;margin:28px 0 14px}.hero p{color:#E3DAFB;max-width:36ch}
+.hero .logo i{background:#fff;color:var(--primary)}
+.formside{display:grid;place-items:center;padding:36px 20px}.formside .card{width:100%;max-width:410px}
+.links{display:flex;justify-content:space-between;margin:16px 0 0;font-size:.875rem}.links a{color:var(--primary-dark);font-weight:600;text-decoration:none}
+.dlg{position:fixed;inset:0;background:rgba(51,39,71,.45);display:none;place-items:center;padding:16px;z-index:20}.dlg.on{display:grid}
+.dlg .card{width:100%;max-width:460px}
+.row2{display:grid;gap:0 14px}
+@media (min-width:720px){.kpis{grid-template-columns:repeat(4,1fr)}.charts{grid-template-columns:1fr 1fr}.row2{grid-template-columns:1fr 1fr}}
+@media (min-width:1024px){.auth{grid-template-columns:1.1fr 1fr}.hero{padding:56px}}
+</style></head><body>
+<header class="top" id="top"><span class="logo"><i>✓</i>TaskFlow</span><span class="badge b-pending" id="rolepill"></span><span class="sp"></span><span class="muted" id="who"></span><button class="btn btn-ghost btn-sm" id="logout">Log out</button></header>
+<main id="m">
+
+<section id="login" class="screen on"><div class="auth"><div class="hero"><span class="logo"><i>✓</i>TaskFlow</span><h2>Plan the day. Finish the week.</h2><p>One calm place for every task, deadline and status.</p></div>
+<div class="formside"><form class="card" data-portal="USER" autocomplete="off"><h1>Welcome back</h1><p class="muted">Log in with your TaskFlow account.</p>
+<div class="field"><label>Email or username</label><input name="id" required autocomplete="off"></div>
+<div class="field"><label>Password</label><input name="pw" type="password" required autocomplete="off"></div>
+<p class="err" role="alert"></p><button class="btn" style="width:100%">Log in</button>
+<div class="links"><a href="#register">Create account</a><a href="#admin-login">Admin portal</a></div></form></div></div></section>
+
+<section id="admin-login" class="screen"><div class="auth"><div class="hero" style="background:var(--ink)"><span class="logo"><i>✓</i>TaskFlow</span><h2>Admin portal</h2><p>Manage users and see how the platform is doing.</p></div>
+<div class="formside"><form class="card" data-portal="ADMIN" autocomplete="off"><h1>Admin log in</h1><p class="muted">Only administrator accounts can sign in here.</p>
+<div class="field"><label>Email or username</label><input name="id" required autocomplete="off"></div>
+<div class="field"><label>Password</label><input name="pw" type="password" required autocomplete="off"></div>
+<p class="err" role="alert"></p><button class="btn" style="width:100%">Log in as admin</button>
+<div class="links"><a href="#login">Back to user login</a></div></form></div></div></section>
+
+<section id="register" class="screen"><div class="auth"><div class="hero"><span class="logo"><i>✓</i>TaskFlow</span><h2>Start organising today</h2><p>Create a free account in under a minute.</p></div>
+<div class="formside"><form class="card" id="regform" autocomplete="off"><h1>Create account</h1><p class="muted">Standard user accounts only.</p>
+<div class="field"><label>Username</label><input required></div><div class="field"><label>Email</label><input type="email" required></div>
+<div class="field"><label>Password</label><input id="p1" type="password" required></div><div class="field"><label>Confirm password</label><input id="p2" type="password" required></div>
+<p class="err" id="regerr" role="alert"></p><button class="btn" style="width:100%">Create account</button><p class="muted" style="margin:12px 0 0">Prototype only: new accounts are not saved.</p>
+<div class="links"><a href="#login">Back to log in</a></div></form></div></div></section>
+
+<section id="user" class="screen"><div class="head"><div><p class="muted" style="margin:0">User workspace</p><h1>Your tasks</h1></div><button class="btn" id="addbtn">+ Add task</button></div>
+<div class="kpis"><div class="card kpi"><strong id="k1"></strong><span class="muted">Total tasks</span></div><div class="card kpi"><strong id="k2"></strong><span class="muted">Pending</span></div><div class="card kpi"><strong id="k3"></strong><span class="muted">Completed</span></div><div class="card kpi"><strong id="k4"></strong><span class="muted">Completion rate</span><div class="bar"><i id="kbar"></i></div></div></div>
+<div class="toolbar" id="flt"><button class="chip" data-f="all" aria-pressed="true">All</button><button class="chip" data-f="pending" aria-pressed="false">Pending</button><button class="chip" data-f="done" aria-pressed="false">Completed</button><input id="q" type="search" placeholder="Search title or description" aria-label="Search tasks"></div>
+<div class="card" id="tl"></div></section>
+
+<section id="admin" class="screen"><div class="head"><div><p class="muted" style="margin:0">Admin workspace</p><h1>Platform overview</h1></div></div>
+<div class="kpis"><div class="card kpi"><strong id="a1"></strong><span class="muted">Users</span></div><div class="card kpi"><strong id="a2"></strong><span class="muted">Active users</span></div><div class="card kpi"><strong id="a3"></strong><span class="muted">Total tasks</span></div><div class="card kpi"><strong id="a4"></strong><span class="muted">Completed</span></div></div>
+<div class="charts"><div class="card"><h2>Task status</h2><div class="donut" id="dn"><div id="dnl"></div></div><div class="legend"><span>● Completed</span><span style="color:var(--primary)">● Pending</span></div></div>
+<div class="card"><h2>Priority distribution</h2><div class="bars" id="pb"></div></div></div>
+<div class="card" style="margin-bottom:16px"><div class="toolbar"><h2 style="margin:0">Users</h2><input id="uq" type="search" placeholder="Search users" aria-label="Search users"></div><div class="scroll"><table><thead><tr><th>User</th><th>Role</th><th>Status</th><th></th></tr></thead><tbody id="ut"></tbody></table></div></div>
+<div class="card"><h2>All platform tasks</h2><div class="scroll"><table><thead><tr><th>Task</th><th>User</th><th>Priority</th><th>Status</th></tr></thead><tbody id="at"></tbody></table></div></div></section>
+</main>
+
+<div class="dlg" id="dlg"><form class="card" id="tf"><h2>Add task</h2>
+<div class="field"><label>Title</label><input id="nt" required placeholder="e.g. Finish login page"></div>
+<div class="field"><label>Description</label><textarea id="nd" rows="2" placeholder="Optional notes"></textarea></div>
+<div class="row2"><div class="field"><label>Priority</label><select id="np"><option>Low</option><option selected>Medium</option><option>High</option></select></div><div class="field"><label>Due date</label><input type="date" id="ndue"></div></div>
+<div style="display:flex;gap:8px;justify-content:flex-end"><button type="button" class="btn btn-ghost" id="cx">Cancel</button><button class="btn">Save task</button></div></form></div>
+
+<script>
+/* Demo login gate: only PBKDF2 hashes are stored (no plain-text credentials). Real auth belongs in the backend. */
+var SALT='taskflow-g13',DB={"0094870a44a0ed7450f37636a080221aecee5041fb049a05f133dc3b1bc619a7": {"role": "ADMIN", "name": "angrevyas"}, "87108b928b9fadd3dbd23621ecb0b0f5f969097a57d5832884b86c5d20ba1353": {"role": "ADMIN", "name": "angrevyas"}, "5e9a0e8299abda84075cd4d3f392c92b022dee97db8d4ca8fb3be87da9a6a2a6": {"role": "ADMIN", "name": "Demo Administrator"}, "3fb9a9de821ffbc7f9028078b17023902666bf77ad902a74fa2ae22a2c67c34e": {"role": "ADMIN", "name": "Demo Administrator"}, "c11fef36a43d97eeb2e34e5506d95ea6e3d2e3bec2e68f88cab87f7c3027a4ce": {"role": "USER", "name": "Demo User"}, "d50071aa451cc6427cd613a5752d2d21ea2c995412b9cd3f3cfb08c752eecb09": {"role": "USER", "name": "Demo User"}},mem={};
+function ss(k,v){try{if(v===undefined)return sessionStorage.getItem(k)||mem[k];if(v===null){sessionStorage.removeItem(k);delete mem[k]}else{sessionStorage.setItem(k,v);mem[k]=v}}catch(e){if(v===undefined)return mem[k];v===null?delete mem[k]:mem[k]=v}}
+async function hash(s){var e=new TextEncoder(),k=await crypto.subtle.importKey('raw',e.encode(s),'PBKDF2',false,['deriveBits']);var b=await crypto.subtle.deriveBits({name:'PBKDF2',salt:e.encode(SALT),iterations:120000,hash:'SHA-256'},k,256);return Array.from(new Uint8Array(b)).map(function(x){return x.toString(16).padStart(2,'0')}).join('')}
+document.querySelectorAll('form[data-portal]').forEach(function(f){f.onsubmit=async function(ev){ev.preventDefault();var id=f.id.value.trim().toLowerCase(),er=f.querySelector('.err');er.textContent='';
+if(!window.crypto||!crypto.subtle){er.textContent='Open this page over https or localhost to log in.';return}
+var r=DB[await hash(id+'\n'+f.pw.value)];f.pw.value='';
+if(!r||r.role!==f.dataset.portal){er.textContent='Email, username or password is incorrect.';return}
+ss('role',r.role);ss('name',r.name);location.hash=r.role==='ADMIN'?'#admin':'#user'}});
+var tasks=[{t:'Write API docs',d:'Fastify endpoints',p:'High',done:0,due:'18 Nov'},{t:'Design login screen',d:'Lavender theme',p:'Medium',done:0,due:'22 Nov'},{t:'Set up repository',d:'Branches and folders',p:'Low',done:0,due:'24 Nov'},{t:'Create GitHub branch',d:'feature/ui-ux',p:'Low',done:1,due:'Done'}],flt='all';
+var pc={High:'b-high',Medium:'b-med',Low:'b-low'};
+function renderTasks(){var q=document.getElementById('q').value.toLowerCase(),h='';
+tasks.forEach(function(x,i){if(flt==='pending'&&x.done||flt==='done'&&!x.done||(x.t+x.d).toLowerCase().indexOf(q)<0)return;
+h+='<div class="task'+(x.done?' done':'')+'"><button class="check" data-t="'+i+'" aria-label="Toggle complete">'+(x.done?'✓':'')+'</button><div><div class="task-title">'+x.t+'</div><span class="muted">'+x.d+' · Due '+x.due+'</span></div><div style="display:flex;gap:8px;align-items:center"><span class="badge '+pc[x.p]+'">'+x.p+'</span><button class="btn btn-ghost btn-sm" data-x="'+i+'">Delete</button></div></div>'});
+document.getElementById('tl').innerHTML=h||'<p class="muted" style="margin:0">No tasks match. Add a task to get started.</p>';
+var n=tasks.length,d=tasks.filter(function(x){return x.done}).length,r=n?Math.round(d/n*100):0;
+k1.textContent=n;k2.textContent=n-d;k3.textContent=d;k4.textContent=r+'%';kbar.style.width=r+'%'}
+tl.onclick=function(e){var b=e.target.closest('button');if(!b)return;if(b.dataset.t!==undefined){var x=tasks[b.dataset.t];x.done=x.done?0:1;renderTasks()}
+if(b.dataset.x!==undefined&&confirm('Delete this task?')){tasks.splice(b.dataset.x,1);renderTasks()}};
+flt_=document.getElementById('flt');flt_.onclick=function(e){var c=e.target.closest('.chip');if(!c)return;flt=c.dataset.f;flt_.querySelectorAll('.chip').forEach(function(x){x.setAttribute('aria-pressed',x===c)});renderTasks()};
+q.oninput=renderTasks;addbtn.onclick=function(){dlg.classList.add('on');nt.focus()};cx.onclick=function(){dlg.classList.remove('on')};
+tf.onsubmit=function(e){e.preventDefault();tasks.unshift({t:nt.value,d:nd.value||'No description',p:np.value,done:0,due:ndue.value||'No date'});tf.reset();dlg.classList.remove('on');renderTasks()};
+var users=[['angrevyas','angrevyas@gmail.com','ADMIN',1],['Demo Administrator','admin@taskflow.dev','ADMIN',1],['Demo User','user@taskflow.dev','USER',1],['Riya Patil','riya@example.com','USER',1],['Aman Shah','aman@example.com','USER',0]];
+var all=[['Write API docs','Demo User','High',0],['Design login screen','Riya Patil','Medium',0],['Set up repository','Demo User','Low',1],['Test register form','Riya Patil','High',1],['Plan sprint','Aman Shah','Medium',1],['Review PR','Demo User','Low',0]];
+function renderAdmin(){var q=uq.value.toLowerCase();ut.innerHTML=users.map(function(u,i){if((u[0]+u[1]).toLowerCase().indexOf(q)<0)return'';
+return'<tr><td><b>'+u[0]+'</b><br><span class="muted">'+u[1]+'</span></td><td>'+u[2]+'</td><td><span class="badge '+(u[3]?'b-done':'b-off')+'">'+(u[3]?'Active':'Inactive')+'</span></td><td style="text-align:right">'+(u[2]==='ADMIN'?'<span class="muted">Protected</span>':'<button class="btn btn-ghost btn-sm" data-u="'+i+'">'+(u[3]?'Deactivate':'Activate')+'</button>')+'</td></tr>'}).join('')}
+uq.oninput=renderAdmin;ut.onclick=function(e){var b=e.target.closest('button');if(b){users[b.dataset.u][3]^=1;renderAdmin();a2.textContent=users.filter(function(u){return u[3]}).length}};
+at.innerHTML=all.map(function(x){return'<tr><td><b>'+x[0]+'</b></td><td>'+x[1]+'</td><td><span class="badge '+pc[x[2]]+'">'+x[2]+'</span></td><td><span class="badge '+(x[3]?'b-done':'b-pending')+'">'+(x[3]?'Completed':'Pending')+'</span></td></tr>'}).join('');
+var dn_=all.filter(function(x){return x[3]}).length,pct=Math.round(dn_/all.length*100);
+a1.textContent=users.length;a2.textContent=users.filter(function(u){return u[3]}).length;a3.textContent=all.length;a4.textContent=dn_;
+dn.style.background='conic-gradient(var(--ok) 0 '+pct+'%,var(--primary) '+pct+'% 100%)';dnl.textContent=pct+'%';
+pb.innerHTML=['Low','Medium','High'].map(function(p){var c=all.filter(function(x){return x[2]===p}).length;return'<span style="height:'+(c/all.length*100+20)+'%"><small>'+p+' · '+c+'</small></span>'}).join('');
+regform.onsubmit=function(e){e.preventDefault();if(p1.value!==p2.value){regerr.textContent='Passwords do not match.';return}regerr.textContent='';alert('Prototype only: account not saved.');location.hash='#login'};
+logout.onclick=function(){ss('role',null);ss('name',null);location.hash='#login'};
+function route(){var h=(location.hash||'#login').slice(1),role=ss('role');
+if(h==='user'&&role!=='USER'||h==='admin'&&role!=='ADMIN'){h=h==='admin'?'admin-login':'login';location.hash='#'+h;return}
+if(['login','admin-login','register','user','admin'].indexOf(h)<0)h='login';
+document.querySelectorAll('.screen').forEach(function(s){s.classList.toggle('on',s.id===h)});
+var inapp=h==='user'||h==='admin';top_=document.getElementById('top');top_.classList.toggle('on',inapp);
+if(inapp){rolepill.textContent=role==='ADMIN'?'Admin':'User';who.textContent=ss('name')||''}}
+addEventListener('hashchange',route);renderTasks();renderAdmin();route();
+</script></body></html>
