@@ -323,7 +323,15 @@
         }"
       />
       @if (f['title'].touched && f['title'].invalid) {
-        <p class="text-xs text-rose-600 mt-1">Title is required (minimum 3 characters).</p>
+        @if (f['title'].hasError('whitespace')) {
+          <p class="text-xs text-rose-600 mt-1">Title cannot be empty or contain only whitespace.</p>
+        } @else if (f['title'].hasError('required')) {
+          <p class="text-xs text-rose-600 mt-1">Title is required.</p>
+        } @else if (f['title'].hasError('minlength')) {
+          <p class="text-xs text-rose-600 mt-1">Title must be at least 3 characters long.</p>
+        } @else if (f['title'].hasError('maxlength')) {
+          <p class="text-xs text-rose-600 mt-1">Title cannot exceed 100 characters.</p>
+        }
       }
     </div>
 

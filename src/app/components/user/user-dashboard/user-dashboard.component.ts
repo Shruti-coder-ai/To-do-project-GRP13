@@ -1,6 +1,14 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import {
+  ReactiveFormsModule,
+  FormBuilder,
+  FormGroup,
+  Validators,
+  AbstractControl,
+  ValidationErrors,
+  ValidatorFn
+} from '@angular/forms';
 import { Dialog } from 'primeng/dialog';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { NavbarComponent } from '../../shared/navbar/navbar.component';
@@ -8,6 +16,35 @@ import { SidebarComponent } from '../../shared/sidebar/sidebar.component';
 import { AuthService } from '../../../services/auth.service';
 import { TaskService } from '../../../services/task.service';
 import { Task, TaskPriority, TaskFilter } from '../../../models/task.model';
+
+/**
+ * Custom validator for task title:
+ * - Trims the title before validation
+ * - Rejects empty or whitespace-only inputs with { required: true } and { whitespace: true }
+ * - Rejects titles shorter than min length with { minlength: { requiredLength: min, actualLength: trimmed.length } }
+ * - Rejects titles longer than max length with { maxlength: { requiredLength: max, actualLength: trimmed.length } }
+ */
+export function taskTitleValidator(min: number = 3, max: number = 100): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null => {
+    const value = control.value;
+    if (value === null || value === undefined) {
+      return { required: true };
+    }
+    const str = typeof value === 'string' ? value : String(value);
+    const trimmed = str.trim();
+
+    if (trimmed.length === 0) {
+      return str.length > 0 ? { required: true, whitespace: true } : { required: true };
+    }
+    if (trimmed.length < min) {
+      return { minlength: { requiredLength: min, actualLength: trimmed.length } };
+    }
+    if (trimmed.length > max) {
+      return { maxlength: { requiredLength: max, actualLength: trimmed.length } };
+    }
+    return null;
+  };
+}
 
 /**
  * UserDashboardComponent
@@ -51,7 +88,7 @@ export class UserDashboardComponent implements OnInit {
 
   // Reactive Task Form definition
   taskForm: FormGroup = this.fb.group({
-    title: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]],
+    title: ['', [Validators.required, taskTitleValidator(3, 100)]],
     description: ['', [Validators.required, Validators.maxLength(500)]],
     priority: ['Medium' as TaskPriority, [Validators.required]],
     dueDate: [new Date().toISOString().split('T')[0], [Validators.required]]
@@ -109,13 +146,27 @@ export class UserDashboardComponent implements OnInit {
   }
 
   onSaveTask(): void {
+    // Trim the task title before validation
+    const titleControl = this.taskForm.get('title');
+    if (titleControl && typeof titleControl.value === 'string') {
+      const raw = titleControl.value;
+      const trimmed = raw.trim();
+      titleControl.setValue(trimmed);
+      if (raw.length > 0 && trimmed.length === 0) {
+        titleControl.setErrors({ required: true, whitespace: true });
+      }
+    }
+
     if (this.taskForm.invalid) {
       this.taskForm.markAllAsTouched();
       return;
     }
 
     this.isSubmitting.set(true);
-    const formValues = this.taskForm.value;
+    const formValues = {
+      ...this.taskForm.value,
+      title: this.taskForm.value.title?.trim()
+    };
 
     if (this.isEditing() && this.editingTaskId()) {
       // Update existing task
