@@ -8,6 +8,11 @@ const idParams = {
   properties: { id: { type: 'integer', minimum: 1 } },
 };
 
+// dueDate must be a real date (YYYY-MM-DD) or empty
+const dueDateSchema = {
+  anyOf: [{ type: 'string', format: 'date' }, { type: 'string', maxLength: 0 }],
+};
+
 // Base query: task + owner name
 const taskQuery = () =>
   db('tasks').join('users', 'users.id', 'tasks.user_id').select('tasks.*', 'users.name as user_name');
@@ -40,12 +45,15 @@ export default async function taskRoutes(app) {
           title: { type: 'string', minLength: 1, maxLength: 200 },
           description: { type: 'string' },
           priority: { type: 'string', enum: ['Low', 'Medium', 'High'] },
-          dueDate: { type: 'string' },
+          dueDate: dueDateSchema,
         },
       },
     },
   }, async (request, reply) => {
     const { title, description = '', priority = 'Medium', dueDate } = request.body;
+    if (!title.trim()) {
+      return reply.code(400).send({ message: 'Task title cannot be empty or only spaces.' });
+    }
     const [created] = await db('tasks')
       .insert({
         user_id: request.user.id,
@@ -70,7 +78,7 @@ export default async function taskRoutes(app) {
           title: { type: 'string', minLength: 1, maxLength: 200 },
           description: { type: 'string' },
           priority: { type: 'string', enum: ['Low', 'Medium', 'High'] },
-          dueDate: { type: 'string' },
+          dueDate: dueDateSchema,
           status: { type: 'string', enum: ['Pending', 'Completed'] },
         },
       },
@@ -78,6 +86,9 @@ export default async function taskRoutes(app) {
   }, async (request, reply) => {
     const { id } = request.params;
     const { title, description, priority, dueDate, status } = request.body;
+    if (title !== undefined && !title.trim()) {
+      return reply.code(400).send({ message: 'Task title cannot be empty or only spaces.' });
+    }
 
     const changes = { updated_at: db.fn.now() };
     if (title !== undefined) changes.title = title.trim();
