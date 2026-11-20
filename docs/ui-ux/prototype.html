@@ -72,7 +72,7 @@ main{max-width:1040px;margin:0 auto;padding:28px 16px 48px}
 </main>
 
 <div class="dlg" id="dlg"><form class="card" id="tf"><h2>Add task</h2>
-<div class="field"><label>Title</label><input id="nt" required placeholder="e.g. Finish login page"></div>
+<div class="field"><label>Title</label><input id="nt" required maxlength="100" placeholder="e.g. Finish login page"><p class="err" id="nterr" role="alert"></p></div>
 <div class="field"><label>Description</label><textarea id="nd" rows="2" placeholder="Optional notes"></textarea></div>
 <div class="row2"><div class="field"><label>Priority</label><select id="np"><option>Low</option><option selected>Medium</option><option>High</option></select></div><div class="field"><label>Due date</label><input type="date" id="ndue"></div></div>
 <div style="display:flex;gap:8px;justify-content:flex-end"><button type="button" class="btn btn-ghost" id="cx">Cancel</button><button class="btn">Save task</button></div></form></div>
