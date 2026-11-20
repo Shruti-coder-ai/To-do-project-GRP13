@@ -1,7 +1,7 @@
 import { Injectable, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of, throwError } from 'rxjs';
-import { delay, tap } from 'rxjs/operators';
+import { delay, tap, map } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 import { Task, CreateTaskDto, UpdateTaskDto, TaskStatistics, TaskFilter } from '../models/task.model';
 import { AuthService } from './auth.service';
@@ -195,10 +195,9 @@ export class TaskService {
     const nextStatus = task.status === 'Completed' ? 'Pending' : 'Completed';
     return this.updateTask(task.id, { status: nextStatus });
   }
-
-  /**
-   * Delete a task
-   */
+/**
+ * Delete a task
+ */
   deleteTask(id: string): Observable<boolean> {
     if (environment.useMockData) {
       this.tasksSignal.update((tasks) => tasks.filter((t) => t.id !== id));
@@ -208,11 +207,15 @@ export class TaskService {
 
     return this.http.delete<void>(`${environment.apiUrl}/tasks/${id}`).pipe(
       tap(() => {
-        this.tasksSignal.update((tasks) => tasks.filter((t) => t.id !== id));
+        this.tasksSignal.update((tasks) =>
+          tasks.filter((t) => t.id !== id)
+        );
       }),
-      () => of(true)
+      // Return true after the backend confirms deletion
+      map(() => true)
     );
   }
+
 
   // --- Mock Data Management ---
 
