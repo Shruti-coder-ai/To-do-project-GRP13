@@ -147,5 +147,5 @@ PostgreSQL database, and integrated Angular application.
 | INT-15 | Website displays tasks created through API | PostgreSQL-backed tasks visible | Private Task User 1 appeared after login | Pass |
 | INT-16 | Website task create, edit, complete and delete | All task operations work end-to-end | Full workflow verified | Pass |
 | INT-17 | Deleted task remains deleted after refresh | Deletion persists | Task did not reappear after refresh | Pass |
-| INT-18 | Long-title validation retest | Correct maximum-length warning | Incorrect minimum-length warning still displayed | Fail |
-| INT-19 | Whitespace-only title website retest | Task rejected with clear validation message | Task rejected, but generic Creation Failed error displayed | Partial |
+| INT-18 | Long-title validation retest | Correct maximum-length warning | Correct maximum-length validation message displayed; task rejected | Pass |
+| INT-19 | Whitespace-only title retest | Task rejected with clear validation message | Task rejected with appropriate frontend validation message | Pass |
