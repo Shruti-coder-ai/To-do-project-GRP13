@@ -4,13 +4,13 @@
 **Project:** To-Do App – Group 13  
 **QA Role:** Testing and Documentation  
 **QA Member:** Kripa Naik  
-**Git Branch:** feature/testing-docs
+**Git Branch:** feature/final-qa-testing
 
 ## 1. Purpose
 
 The purpose of this document is to define test cases for checking the functionality, usability, reliability and security of the To-Do App.
 
-Testing covers User and Admin roles, authentication, task management and filters. Database persistence and backend access permissions remain outside the verified scope of this mock-mode run.
+Testing covers User and Admin roles, authentication, task management and filters. Testing was conducted in two stages: initial frontend testing using mock data, followed by backend API, PostgreSQL database, and integrated application testing on 21 November 2026. Verified results and remaining limitations are documented below and in testing-summary.md.
 
 ## 2. Test Status
 
@@ -18,7 +18,7 @@ Testing covers User and Admin roles, authentication, task management and filters
 - Pass – Actual result matches expected result.
 - Fail – Actual result does not match expected result.
 - Blocked – Testing cannot be performed due to an unavailable dependency.
-
+- Partial – Core functionality works, but part of the expected behaviour still needs improvement.
 ## 3. Authentication Testing
 
 | Test ID | Test Scenario | Test Steps | Expected Result | Actual Result | Status |
@@ -41,7 +41,7 @@ Testing covers User and Admin roles, authentication, task management and filters
 | TC-11 | View dashboard | Log in as a User | User dashboard should appear | User dashboard displayed. | Pass |
 | TC-12 | Add task | Enter a valid task title and submit | Task should be created | Task created successfully. | Pass |
 | TC-13 | Empty task title | Submit task without a title | Validation should appear | Empty title rejected. | Pass |
-| TC-14 | Long task title | Enter a very long title | Input should be handled safely | Long title was rejected, but incorrect minimum-length validation message appeared. | Fail |
+| TC-14 | Long task title | Enter a very long title | Input should be handled safely | Retested on 21 November 2026: A 300-character title was rejected, but the incorrect minimum-length validation message still appeared. | Fail |
 | TC-15 | Add description | Enter task title and description | Task details should be saved | Task description saved. | Pass |
 | TC-16 | View tasks | Open the task list | User's tasks should appear | Task list displayed. | Pass |
 | TC-17 | Edit task | Change task details and save | Updated details should appear | Edited task displayed updated details. | Pass |
@@ -90,7 +90,7 @@ Testing covers User and Admin roles, authentication, task management and filters
 
 | Test ID | Test Scenario | Expected Result | Actual Result | Status |
 |---|---|---|---|---|
-| TC-43 | Whitespace-only task title | Reject a title consisting only of spaces | Task was created with spaces as title | Fail |
+| TC-43 | Whitespace-only task title | Enter only spaces and attempt to create a task | Whitespace-only title should be rejected with a clear validation message | Retested on 21 November 2026: Backend rejected the title with HTTP 400 and no task was created. Frontend displayed a generic "Creation Failed" error instead of a clear validation message. | Partial |
 | TC-44 | Search by description | Matching tasks displayed | Search matched descriptions | Pass |
 | TC-45 | Case-insensitive search | Search ignores letter case | Search worked regardless of case | Pass |
 | TC-46 | Search with status filter | Results satisfy search and status | Combined search and status filters worked | Pass |
@@ -122,3 +122,30 @@ Testing covers User and Admin roles, authentication, task management and filters
 **Overall Testing Status:** Frontend mock-mode manual testing partially complete; integration and permission checks pending.
 
 **Last Updated:** 20 November 2026.
+
+## Integration and Backend Testing — 21 November 2026
+
+The following tests were performed against the Fastify backend,
+PostgreSQL database, and integrated Angular application.
+
+| Test ID | Test Scenario | Expected Result | Actual Result | Status |
+|---|---|---|---|---|
+| INT-01 | Register a new user | User created successfully | HTTP 201; user stored in PostgreSQL | Pass |
+| INT-02 | Register duplicate email | Duplicate registration rejected | HTTP 409 | Pass |
+| INT-03 | Invalid email and short password | Invalid registration rejected | HTTP 400 | Pass |
+| INT-04 | Login with valid and invalid credentials | Correct authentication responses | HTTP 200 and 401 respectively | Pass |
+| INT-05 | Access tasks without authentication | Access denied | HTTP 401 | Pass |
+| INT-06 | Create, view, edit, complete and delete tasks using API | All CRUD operations succeed | Verified using Thunder Client and PostgreSQL | Pass |
+| INT-07 | Filter tasks by Pending and Completed status | Correct filtered tasks returned | Filters returned expected results | Pass |
+| INT-08 | Submit whitespace-only title through API | Invalid title rejected | HTTP 400 | Pass |
+| INT-09 | Submit invalid task priority | Invalid priority rejected | HTTP 400 | Pass |
+| INT-10 | Access another user's tasks | Cross-user access prevented | GET excluded private tasks; PUT and DELETE returned 404 | Pass |
+| INT-11 | Access admin API using USER account | Access denied | HTTP 403 | Pass |
+| INT-12 | Admin views users, tasks and statistics | Admin data returned successfully | All three endpoints returned HTTP 200 | Pass |
+| INT-13 | Admin changes another user's account status | Account status updates successfully | INACTIVE and ACTIVE changes returned HTTP 200 | Pass |
+| INT-14 | Admin attempts to change own role or delete own account | Self-modification blocked | Both operations returned HTTP 400 | Pass |
+| INT-15 | Website displays tasks created through API | PostgreSQL-backed tasks visible | Private Task User 1 appeared after login | Pass |
+| INT-16 | Website task create, edit, complete and delete | All task operations work end-to-end | Full workflow verified | Pass |
+| INT-17 | Deleted task remains deleted after refresh | Deletion persists | Task did not reappear after refresh | Pass |
+| INT-18 | Long-title validation retest | Correct maximum-length warning | Incorrect minimum-length warning still displayed | Fail |
+| INT-19 | Whitespace-only title website retest | Task rejected with clear validation message | Task rejected, but generic Creation Failed error displayed | Partial |
