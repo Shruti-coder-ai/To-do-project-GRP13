@@ -60,8 +60,8 @@ Initial bugs were discovered during frontend mock-mode testing on 20 November 20
 
 | Bug ID | Bug Title | Severity | Related Test Case | Status |
 |---|---|---|---|---|
-| BUG-01 | Incorrect validation message for excessively long title | Low | TC-14 | Open |
-| BUG-02 | Whitespace-only title validation and error feedback | Medium | TC-43 | Partially Resolved — Frontend Fix Required |
+| BUG-01 | Incorrect validation message for excessively long title | Low | TC-14 | Closed |
+| BUG-02 | Whitespace-only title validation and error feedback | Medium | TC-43 | Closed |
 
 ### BUG-01 — Incorrect Long-Title Validation Message
 
@@ -72,7 +72,7 @@ Initial bugs were discovered during frontend mock-mode testing on 20 November 20
 - **Retest Environment:** Angular frontend connected to Fastify backend and PostgreSQL
 - **Related Test Case:** TC-14
 - **Assigned Developer:** Unassigned — frontend developer to review
-- **Status:** Open
+- **Status:** Closed
 
 **Preconditions:** Signed in as a regular user.
 
@@ -109,6 +109,11 @@ Implement separate validation messages for required, minimum-length, and maximum
 - **Observation:** The incorrect minimum-length warning was reproduced during integrated frontend testing.
 - **Status:** Open
 - **Next Action:** Frontend developer to correct the validation message and provide a fix for QA retesting.
+-**Evidence:**
+- `docs/evidence/BUG-01-integration-retest.png` — Integration retest, 21 November 2026
+
+
+**Final Retest Result (21 November 2026):** PASS — A 300-character title was rejected with the correct maximum-length validation message. Issue resolved.
 
 ### BUG-02 — Whitespace-Only Task Title Validation
 
@@ -119,7 +124,7 @@ Implement separate validation messages for required, minimum-length, and maximum
 - **Retest Environment:** Angular frontend connected to Fastify backend and PostgreSQL
 - **Related Test Case:** TC-43
 - **Assigned Developer:** Unassigned — frontend developer to review
-- **Status:** Partially Resolved — Frontend Fix Required
+- **Status:** Closed
 
 **Preconditions:** Signed in as a regular user.
 
@@ -164,6 +169,11 @@ Trim the title before frontend validation, reject whitespace-only input before s
 - **Status:** Partially Resolved — Frontend Fix Required
 - **Next Action:** Frontend developer to improve validation and error feedback, followed by QA retesting.
 
+
+**Final Retest Result (21 November 2026):** PASS — Whitespace-only titles were rejected with an appropriate frontend validation message. Issue resolved.
+
+
+
 ## 5. Observations Requiring Follow-up (Not Confirmed Bugs)
 
 | ID | Observation | Required Follow-up |
@@ -191,6 +201,12 @@ These observations are not counted as confirmed bugs until their expected behavi
 - BUG-01 was reproduced and remains Open.
 - BUG-02 was partially resolved: invalid task creation is blocked by the backend, but frontend validation feedback remains inadequate.
 
+### Final Bug Retesting — 21 November 2026
+-BUG-01: PASS — Long task titles are now rejected with the correct maximum-length validation message.
+-BUG-02: PASS — Whitespace-only titles are rejected with an appropriate frontend validation message.
+-Both reported bugs have been successfully retested and marked Closed.
+-All 19 documented integration test cases now have a Pass status.
+
 ### Bug Reporting and Closure Procedure
 
 - Share unresolved defects with the responsible developer or project manager, including reproduction steps and evidence.
@@ -204,9 +220,9 @@ These observations are not counted as confirmed bugs until their expected behavi
 | Metric | Count |
 |---|---:|
 | Confirmed bugs | 2 |
-| Open | 1 |
-| Partially resolved | 1 |
-| Closed | 0 |
+| Open | 0 |
+| Partially resolved | 0 |
+| Closed | 2 |
 | Observations requiring follow-up | 2 |
 
 **Overall Status:** The tested core application workflows are functioning, but frontend validation issues remain. Final closure requires developer fixes and successful regression testing.

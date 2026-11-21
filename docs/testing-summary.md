@@ -32,15 +32,15 @@ TC-14 and TC-43 were subsequently retested during integration.
 
 ### Backend and Integration Testing
 - Total additional test cases: 19
-- Passed: 17
-- Failed: 1
-- Partial: 1
+- Passed: 19
+- Failed: 0
+- Partial: 0
 
 ### Overall Documentation
 - Total test-case entries: 80
 - Confirmed bugs: 2
-- Bugs open: 1
-- Bugs partially resolved: 1
+- Bugs closed after retesting: 2
+- Open confirmed bugs: 0
 
 Note: Integration retests of TC-14 and TC-43 are also documented
 as INT-18 and INT-19. These are separate test executions,
@@ -218,6 +218,18 @@ The main integrated task-management workflow functioned correctly during testing
 
 Refer to `docs/bug-report.md` for detailed reproduction steps.
 
+### Final Regression Testing — 21 November 2026
+
+| Test ID | Issue | Final Result |
+|---|---|---|
+| INT-18 / BUG-01 | Incorrect long-title validation message | Pass — Correct maximum-length warning displayed |
+| INT-19 / BUG-02 | Whitespace-only title validation | Pass — Task rejected with appropriate validation message |
+
+Both confirmed bugs were successfully retested and closed.
+
+**Final Integration Results:** 19 Passed, 0 Failed, 0 Partial.
+
+
 ## 6. Outstanding Testing and Issues
 
 The following areas require further testing, investigation, or confirmation:
@@ -239,13 +251,15 @@ The following areas require further testing, investigation, or confirmation:
 
 These are suggestions and have not been established as mandatory project requirements.
 
-## 8. Final Conclusion
+## 8. Conclusion
 
-QA testing verified the application's main user workflows, backend authentication, task APIs, PostgreSQL integration, user-level access restrictions, and several administrative operations.
+The main QA testing activities have been completed, covering frontend functionality, backend APIs, PostgreSQL database operations, admin functionality, and end-to-end integration.
 
-The integrated application successfully supported user login, task creation, viewing, editing, completion, deletion, and database-backed persistence.
+All 19 documented integration test cases passed, including the final retests of BUG-01 and BUG-02. Both confirmed bugs have been closed.
 
-Two previously identified validation issues were retested. BUG-01 remains open, while BUG-02 is partially resolved because backend validation works but frontend error feedback requires improvement.
+The Invalid PrimeUI License notification and past-due-date behavior remain observations requiring clarification. Some additional admin scenarios remain outside the verified scope.
+
+**Final Status: Main QA testing completed; all documented integration tests passed.**
 
 **Overall Result:** Core tested functionality is working, with outstanding frontend validation defects and some remaining admin and regression scenarios.
 
