@@ -3,65 +3,33 @@
 **Project:** Winter Internship To-Do App  
 **Group:** 13  
 **QA Member:** Kripa Naik  
-**Status:** Integration testing performed; unresolved frontend validation issues remain  
-**Last Updated:** 21 November 2026  
+**Status:** Both confirmed bugs closed; two observations remain  
+**Last Updated:** 24 November 2026  
 **Git Branch:** `feature/final-qa-testing`
 
 ## 1. Purpose
 
-This document records defects identified during frontend, backend, database, and integration testing of the To-Do application.
-
-Each confirmed bug includes reproduction steps, expected and actual results, severity, supporting evidence, and retesting status.
-
-Initial bugs were discovered during frontend mock-mode testing on 20 November 2026 and subsequently retested against the integrated application on 21 November 2026.
+This document records defects identified during frontend, backend, database and integration testing, including reproduction steps, severity, evidence and retest results. Initial defects were identified in mock mode on 20 November, retested against the integrated application on 21 November, and followed by additional testing on 24 November 2026.
 
 ## 2. Bug Severity
 
 | Severity | Description |
 |---|---|
-| Critical | Major functionality is completely broken or a serious security issue exists. |
-| High | An important feature does not work correctly. |
-| Medium | A feature works incorrectly but has a workaround. |
-| Low | Minor UI, layout, or validation-message issue. |
+| Critical | Major functionality completely broken or serious security issue. |
+| High | Important feature does not work correctly. |
+| Medium | Feature works incorrectly but has a workaround. |
+| Low | Minor UI, layout or validation-message issue. |
 
 ## 3. Bug Report Template
 
-### Bug Details
-
-- **Bug ID:**
-- **Bug Title:**
-- **Feature/Module:**
-- **Date Reported:**
-- **Severity:**
-- **Environment:**
-- **Related Test Case ID:**
-- **Assigned Developer:**
-- **Status:**
-
-### Description
-
-**Preconditions:**
-
-**Steps to Reproduce:**
-
-1.
-2.
-3.
-
-**Expected Result:**
-
-**Actual Result:**
-
-**Evidence:**
-
-**Retest Result:**
+Record the bug ID, title, module, date reported, severity, environment, related test case, assigned developer, status, preconditions, reproduction steps, expected and actual results, evidence and retest result.
 
 ## 4. Bug Log
 
 | Bug ID | Bug Title | Severity | Related Test Case | Status |
 |---|---|---|---|---|
-| BUG-01 | Incorrect validation message for excessively long title | Low | TC-14 | Closed |
-| BUG-02 | Whitespace-only title validation and error feedback | Medium | TC-43 | Closed |
+| BUG-01 | Incorrect validation message for excessively long title | Low | TC-14 / INT-18 | Closed |
+| BUG-02 | Whitespace-only title validation and error feedback | Medium | TC-43 / INT-19 | Closed |
 
 ### BUG-01 — Incorrect Long-Title Validation Message
 
@@ -69,51 +37,34 @@ Initial bugs were discovered during frontend mock-mode testing on 20 November 20
 - **Date Reported:** 20 November 2026
 - **Severity:** Low
 - **Original Environment:** Angular frontend, Chrome, mock-data mode
-- **Retest Environment:** Angular frontend connected to Fastify backend and PostgreSQL
-- **Related Test Case:** TC-14
-- **Assigned Developer:** Unassigned — frontend developer to review
-- **Status:** Closed
+- **Retest Environment:** Angular, Fastify and PostgreSQL
+- **Related Test Cases:** TC-14, INT-18
+- **Assigned Developer:** Formal assignment not recorded; frontend review required at time of reporting.
+- **Current Status:** Closed
 
 **Preconditions:** Signed in as a regular user.
 
 **Steps to Reproduce:**
 
 1. Open the Create Task form.
-2. Enter a task title containing approximately 300 characters.
+2. Enter a title containing approximately 300 characters.
 3. Attempt to submit the form.
 4. Observe the validation message.
 
-**Expected Result:**
+**Expected Result:** Reject titles exceeding the maximum length and display a clear maximum-length warning.
 
-The application should reject a title exceeding the permitted maximum length and display a clear maximum-length validation message.
-
-**Actual Result:**
-
-Task creation is blocked, but the frontend incorrectly displays:
-
-"Title is required (minimum 3 characters)."
-
-This message describes a minimum-length requirement rather than the actual excessive-length problem.
+**Original Actual Result:** Task creation was blocked, but the frontend incorrectly displayed "Title is required (minimum 3 characters)."
 
 **Evidence:**
 
-- `docs/evidence/BUG-01-long-title-validation.png`
-- `docs/evidence/BUG-01-integration-retest.png` — Integration retest, 21 November 2026.
-**Suggested Fix:**
+- `docs/evidence/BUG-01-long-title-validation.png` — original finding.
+- `docs/evidence/BUG-01-integration-retest.png` — initial integration retest, 21 November 2026.
 
-Implement separate validation messages for required, minimum-length, and maximum-length conditions. Ensure the message corresponds to the actual validation failure.
+**Suggested Fix:** Separate required, minimum-length and maximum-length validation messages.
 
-**Retest — 21 November 2026:**
+**Initial Integration Retest — 21 November 2026:** FAIL. The incorrect minimum-length warning was reproduced. The issue remained open at that stage.
 
-- **Result:** FAIL
-- **Observation:** The incorrect minimum-length warning was reproduced during integrated frontend testing.
-- **Status:** Open
-- **Next Action:** Frontend developer to correct the validation message and provide a fix for QA retesting.
--**Evidence:**
-- `docs/evidence/BUG-01-integration-retest.png` — Integration retest, 21 November 2026
-
-
-**Final Retest Result (21 November 2026):** PASS — A 300-character title was rejected with the correct maximum-length validation message. Issue resolved.
+**Final Retest — 21 November 2026:** PASS. A 300-character title was rejected with the correct maximum-length validation message. Issue resolved and closed.
 
 ### BUG-02 — Whitespace-Only Task Title Validation
 
@@ -121,10 +72,10 @@ Implement separate validation messages for required, minimum-length, and maximum
 - **Date Reported:** 20 November 2026
 - **Severity:** Medium
 - **Original Environment:** Angular frontend, Chrome, mock-data mode
-- **Retest Environment:** Angular frontend connected to Fastify backend and PostgreSQL
-- **Related Test Case:** TC-43
-- **Assigned Developer:** Unassigned — frontend developer to review
-- **Status:** Closed
+- **Retest Environment:** Angular, Fastify and PostgreSQL
+- **Related Test Cases:** TC-43, INT-08, INT-19
+- **Assigned Developer:** Formal assignment not recorded; frontend review required at time of reporting.
+- **Current Status:** Closed
 
 **Preconditions:** Signed in as a regular user.
 
@@ -136,84 +87,64 @@ Implement separate validation messages for required, minimum-length, and maximum
 4. Attempt to create the task.
 5. Observe the resulting error message.
 
-**Expected Result:**
+**Expected Result:** Reject whitespace-only titles and display a meaningful title-validation message.
 
-Whitespace-only titles should be rejected, and the user should receive a clear validation message explaining that a valid task title is required.
+**Original Actual Result — 20 November 2026:** A whitespace-only title was accepted in mock mode.
 
-**Original Actual Result — 20 November 2026:**
-
-During mock-mode frontend testing, a task with a whitespace-only title was accepted.
-
-**Integrated Actual Result — 21 November 2026:**
-
-The backend correctly rejected the invalid title with HTTP 400, and the task was not created.
-
-However, the frontend displayed a generic "Creation Failed" error with an HTTP failure response rather than a meaningful title-validation message.
+**Initial Integrated Actual Result — 21 November 2026:** The backend rejected the title with HTTP 400 and no task was created. The frontend displayed a generic "Creation Failed" error instead of a meaningful title-validation message.
 
 **Evidence:**
 
-- `docs/evidence/BUG-02-dashboard-blank-title-license.png` — original mock-mode evidence showing a task card with no visible title.
-- `docs/evidence/BUG-02-integration-retest.png` — Integration retest, 21 November 2026.
+- `docs/evidence/BUG-02-dashboard-blank-title-license.png` — original mock-mode screenshot showing a task card with no visible title. It does not show form submission itself.
+- `docs/evidence/BUG-02-integration-retest.png` — initial integration retest, 21 November 2026.
 
-The original screenshot supports the observation but does not show the form submission itself.
+**Suggested Fix:** Trim the title before validation, reject whitespace-only input and display a user-friendly validation message.
 
-**Suggested Fix:**
+**Initial Integration Retest — 21 November 2026:** PARTIAL. Backend validation passed; frontend feedback required improvement. The issue was partially resolved at that stage.
 
-Trim the title before frontend validation, reject whitespace-only input before submitting the request, and display a user-friendly error message.
-
-**Retest — 21 November 2026:**
-
-- **Result:** PARTIAL
-- **Backend Validation:** PASS
-- **Frontend Validation/Error Feedback:** Needs improvement
-- **Status:** Partially Resolved — Frontend Fix Required
-- **Next Action:** Frontend developer to improve validation and error feedback, followed by QA retesting.
-
-
-**Final Retest Result (21 November 2026):** PASS — Whitespace-only titles were rejected with an appropriate frontend validation message. Issue resolved.
-
-
+**Final Retest — 21 November 2026:** PASS. Whitespace-only titles were rejected with an appropriate frontend validation message. Issue resolved and closed.
 
 ## 5. Observations Requiring Follow-up (Not Confirmed Bugs)
 
-| ID | Observation | Required Follow-up |
-|---|---|---|
-| OBS-02 | `Invalid PrimeUI License` notification appeared during frontend testing | Determine whether the warning is related to development configuration or a licensing issue. Reference: `docs/evidence/dashboard-blank-title-license.png` |
-| OBS-03 | Task form accepted a past due date | Confirm whether the project requirements prohibit past due dates before classifying this as a defect |
+| ID | Observation | Required Follow-up | Status |
+|---|---|---|---|
+| OBS-02 | Invalid PrimeUI License notification | Investigate development configuration or licensing; related evidence: `docs/evidence/BUG-02-dashboard-blank-title-license.png`. | Needs Investigation (TC-61) |
+| OBS-03 | Task form accepted a past due date | Confirm whether requirements prohibit past due dates. | Needs Clarification (TC-60) |
 
-These observations are not counted as confirmed bugs until their expected behaviour and impact are established.
+These observations are not confirmed defects. The optional logout confirmation prompt was discussed with the team, which agreed to retain the existing behaviour. No change is required for that suggestion.
 
 ## 6. Testing Notes
 
 ### Initial Frontend Testing — 20 November 2026
 
-- BUG-01 and BUG-02 were originally identified during Angular frontend mock-mode testing.
+- BUG-01 and BUG-02 were identified in Angular mock mode.
 - Initial screenshots were retained under `docs/evidence/`.
 - Mock-mode findings were not treated as proof of backend or PostgreSQL behaviour.
 
 ### Backend and Integration Retesting — 21 November 2026
 
-- Testing was performed against the merged application using Angular, Fastify, PostgreSQL, Chrome, Thunder Client, and pgAdmin.
-- Backend authentication, task CRUD, status filtering, and user-specific task permissions passed the tested scenarios.
-- Database-backed task creation, updates, deletion, and persistence were verified.
-- Admin user listing, task listing, statistics, activation/reactivation, and self-role/self-deletion protection passed.
-- Frontend task creation, viewing, editing, completion, deletion, and refresh were verified.
-- BUG-01 was reproduced and remains Open.
-- BUG-02 was partially resolved: invalid task creation is blocked by the backend, but frontend validation feedback remains inadequate.
+- Angular, Fastify, PostgreSQL, Chrome, Thunder Client and pgAdmin were used.
+- Authentication, task CRUD, status filtering, permissions and database-backed persistence passed the tested scenarios.
+- Admin listing, statistics, activation/reactivation and self-role/self-deletion protection passed.
+- Website task creation, viewing, editing, completion, deletion and refresh were verified.
+- Initial integration retests reproduced BUG-01 and partially resolved BUG-02; both subsequently passed their final defect retests and were closed.
+- All 19 integration/API entries documented on that date passed after final retesting.
 
-### Final Bug Retesting — 21 November 2026
--BUG-01: PASS — Long task titles are now rejected with the correct maximum-length validation message.
--BUG-02: PASS — Whitespace-only titles are rejected with an appropriate frontend validation message.
--Both reported bugs have been successfully retested and marked Closed.
--All 19 documented integration test cases now have a Pass status.
+### Follow-up and Targeted Integrated Regression — 24 November 2026
+
+- Additional permission, persistence, backend outage and responsive-layout checks passed. Mobile checks used Chrome device emulation.
+- Admin role changes and deletion of a disposable user with associated tasks passed at API and PostgreSQL level (INT-20 and INT-21), not through the website.
+- With mock data disabled, 25 selected existing scenarios were repeated on the integrated application. All 25 passed; no new failures were reported.
+- Regression checks covered registration and login validation, logout access protection, task reopening, empty state, search and filters, cancellation, priority editing and persistence, duplicate titles, browser restart persistence, Admin login restrictions and charts.
+- This was targeted regression, not a full rerun of all 82 documented entries. The 25 repeated checks do not increase the test-case count.
+- BUG-01 and BUG-02 remain closed based on their successful final retests on 21 November; the targeted regression round did not separately repeat those two defect-specific tests.
 
 ### Bug Reporting and Closure Procedure
 
 - Share unresolved defects with the responsible developer or project manager, including reproduction steps and evidence.
-- Developer notification has not yet been confirmed.
-- Retest each defect after the corresponding fix is merged.
-- Mark a bug Closed only after its expected behaviour is verified.
-- Keep observations requiring clarification separate from confirmed defects.
+- Formal developer notification and assignment records are not independently confirmed in this report.
+- Retest defects after fixes are merged and close only after expected behaviour is verified.
+- Keep observations separate from confirmed defects.
 
 ## 7. Current Bug Summary
 
@@ -224,5 +155,6 @@ These observations are not counted as confirmed bugs until their expected behavi
 | Partially resolved | 0 |
 | Closed | 2 |
 | Observations requiring follow-up | 2 |
+| New failures in targeted regression | 0 |
 
-**Overall Status:** The tested core application workflows are functioning, but frontend validation issues remain. Final closure requires developer fixes and successful regression testing.
+**Overall Status:** Core tested workflows are functioning. Both confirmed defects have been successfully retested and closed. Of 82 documented test-case entries, 80 passed and two remain observations; all 21 backend/integration entries and all 25 targeted regression checks passed. No confirmed defects remain open within the tested scope. This does not establish that the application is defect-free or constitute formal project-manager sign-off.
