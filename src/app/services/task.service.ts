@@ -35,7 +35,7 @@ export class TaskService {
   public readonly userTasks = computed(() => {
     const user = this.authService.currentUser();
     if (!user) return [];
-    return this.tasksSignal().filter((task) => task.userId === user.id);
+    return this.tasksSignal().filter((task) => task.userId === user.id || (user.name && task.userName === user.name));
   });
 
   // Filtered view for User Dashboard based on active filter and search text
@@ -128,6 +128,10 @@ export class TaskService {
     }
 
     if (environment.useMockData) {
+      // In TaskFlow, task creator should be a user name, not an admin name
+      const creatorName = user.role === 'ADMIN' ? 'Shruti Naik' : user.name;
+      const creatorId = user.role === 'ADMIN' ? 'usr-shruti' : user.id;
+
       const newTask: Task = {
         id: `tsk-${Date.now()}`,
         title: dto.title,
@@ -135,8 +139,8 @@ export class TaskService {
         priority: dto.priority,
         dueDate: dto.dueDate,
         status: 'Pending',
-        userId: user.id,
-        userName: user.name,
+        userId: creatorId,
+        userName: creatorName,
         createdAt: new Date().toISOString()
       };
 
@@ -226,8 +230,9 @@ export class TaskService {
         const tasks: Task[] = JSON.parse(saved);
         let updated = false;
         tasks.forEach((t) => {
-          if (t.userName === 'Shruti Naik') {
-            t.userName = 'angrevyas';
+          // If a task creator was saved as admin name 'angrevyas' or 'Demo Administrator', attribute to user 'Shruti Naik'
+          if (t.userName === 'angrevyas' || t.userName === 'Demo Administrator') {
+            t.userName = 'Shruti Naik';
             updated = true;
           }
         });
@@ -240,7 +245,7 @@ export class TaskService {
       }
     }
 
-    // Default sample tasks with the dreamy aesthetic context
+    // Default sample tasks with the dreamy aesthetic context (attributed to users)
     const sampleTasks: Task[] = [
       {
         id: 'tsk-1',
@@ -249,8 +254,8 @@ export class TaskService {
         priority: 'High',
         dueDate: new Date(Date.now() + 2 * 86400000).toISOString().split('T')[0],
         status: 'Pending',
-        userId: 'usr-1',
-        userName: 'angrevyas',
+        userId: 'usr-shruti',
+        userName: 'Shruti Naik',
         createdAt: new Date().toISOString()
       },
       {
@@ -260,8 +265,8 @@ export class TaskService {
         priority: 'High',
         dueDate: new Date(Date.now() + 3 * 86400000).toISOString().split('T')[0],
         status: 'Completed',
-        userId: 'usr-1',
-        userName: 'angrevyas',
+        userId: 'usr-shruti',
+        userName: 'Shruti Naik',
         createdAt: new Date().toISOString()
       },
       {
@@ -271,8 +276,8 @@ export class TaskService {
         priority: 'Medium',
         dueDate: new Date(Date.now() + 5 * 86400000).toISOString().split('T')[0],
         status: 'Pending',
-        userId: 'usr-1',
-        userName: 'angrevyas',
+        userId: 'usr-demo',
+        userName: 'Demo User',
         createdAt: new Date().toISOString()
       },
       {
@@ -282,8 +287,8 @@ export class TaskService {
         priority: 'Low',
         dueDate: new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0],
         status: 'Pending',
-        userId: 'usr-1',
-        userName: 'angrevyas',
+        userId: 'usr-shruti',
+        userName: 'Shruti Naik',
         createdAt: new Date().toISOString()
       }
     ];

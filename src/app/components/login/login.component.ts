@@ -103,9 +103,16 @@ export class LoginComponent {
           this.router.navigate(['/user/dashboard']);
         }
       },
-      error: (err: Error) => {
+      error: (err: any) => {
         this.isLoading.set(false);
-        const errorMsg = err.message || 'Login failed. Please check your credentials and try again.';
+        let errorMsg = 'Login failed. Please check your credentials and try again.';
+        if (err.status === 0) {
+          errorMsg = 'Unable to connect to the backend server (http://localhost:3000). Please ensure the backend server is running.';
+        } else if (err.error?.message) {
+          errorMsg = err.error.message;
+        } else if (err.message) {
+          errorMsg = err.message;
+        }
         this.errorMessage.set(errorMsg);
         this.messageService.add({
           severity: 'error',

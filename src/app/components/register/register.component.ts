@@ -126,9 +126,16 @@ export class RegisterComponent {
           this.router.navigate(['/login']);
         }, 1500);
       },
-      error: (err: Error) => {
+      error: (err: any) => {
         this.isLoading.set(false);
-        const errorMsg = err.message || 'Registration failed. Please try again.';
+        let errorMsg = 'Registration failed. Please try again.';
+        if (err.status === 0) {
+          errorMsg = 'Unable to connect to the backend server (http://localhost:3000). Please ensure the backend server is running.';
+        } else if (err.error?.message) {
+          errorMsg = err.error.message;
+        } else if (err.message) {
+          errorMsg = err.message;
+        }
         this.errorMessage.set(errorMsg);
         this.messageService.add({
           severity: 'error',

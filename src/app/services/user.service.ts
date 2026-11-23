@@ -66,6 +66,22 @@ export class UserService {
         })
       );
       this.persistUsers();
+
+      // Sync status with auth users database in localStorage
+      try {
+        const authDbRaw = localStorage.getItem('taskflow_auth_users_db');
+        if (authDbRaw) {
+          const authUsers = JSON.parse(authDbRaw);
+          const idx = authUsers.findIndex(
+            (u: any) => u.id === userId || (updatedUser && u.email?.toLowerCase() === (updatedUser as User).email?.toLowerCase())
+          );
+          if (idx >= 0) {
+            authUsers[idx].status = nextStatus;
+            localStorage.setItem('taskflow_auth_users_db', JSON.stringify(authUsers));
+          }
+        }
+      } catch {}
+
       return of(updatedUser!).pipe(delay(300));
     }
 
@@ -79,79 +95,115 @@ export class UserService {
   // --- Mock Store Initialization ---
 
   private initializeUsers(): User[] {
+    let users: User[] = [];
     const saved = localStorage.getItem(this.USERS_STORAGE_KEY);
     if (saved) {
       try {
-        const users: User[] = JSON.parse(saved);
-        // Ensure angrevyas@gmail.com admin account is present with name angrevyas
-        const adminIndex = users.findIndex((u) => u.email.toLowerCase() === 'angrevyas@gmail.com');
-        if (adminIndex >= 0) {
-          if (users[adminIndex].name !== 'angrevyas') {
-            users[adminIndex].name = 'angrevyas';
-            localStorage.setItem(this.USERS_STORAGE_KEY, JSON.stringify(users));
-          }
-        } else {
-          users.unshift({
-            id: 'adm-shruti',
-            name: 'angrevyas',
-            email: 'angrevyas@gmail.com',
-            role: 'ADMIN',
-            status: 'ACTIVE',
-            createdAt: '2026-11-01T09:00:00.000Z'
-          });
-          localStorage.setItem(this.USERS_STORAGE_KEY, JSON.stringify(users));
-        }
-        return users;
+        users = JSON.parse(saved);
       } catch {
-        // Fallback to sample data
+        users = [];
       }
     }
 
-    const sampleUsers: User[] = [
-      {
+    if (!users || users.length === 0) {
+      users = [
+        {
+          id: 'adm-shruti',
+          name: 'angrevyas',
+          email: 'angrevyas@gmail.com',
+          role: 'ADMIN',
+          status: 'ACTIVE',
+          createdAt: '2026-11-01T09:00:00.000Z'
+        },
+        {
+          id: 'adm-demo',
+          name: 'Demo Administrator',
+          email: 'admin@taskflow.dev',
+          role: 'ADMIN',
+          status: 'ACTIVE',
+          createdAt: '2026-10-15T08:00:00.000Z'
+        },
+        {
+          id: 'usr-demo',
+          name: 'Demo User',
+          email: 'user@taskflow.dev',
+          role: 'USER',
+          status: 'ACTIVE',
+          createdAt: '2026-11-05T11:20:00.000Z'
+        },
+        {
+          id: 'usr-shruti',
+          name: 'Shruti Naik',
+          email: 'naikshruti015@gmail.com',
+          role: 'USER',
+          status: 'ACTIVE',
+          createdAt: '2026-11-19T10:00:00.000Z'
+        },
+        {
+          id: 'usr-3',
+          name: 'Rohan Verma',
+          email: 'rohan.v@taskflow.dev',
+          role: 'USER',
+          status: 'ACTIVE',
+          createdAt: '2026-11-10T14:45:00.000Z'
+        },
+        {
+          id: 'usr-4',
+          name: 'Priya Patel',
+          email: 'priya.p@taskflow.dev',
+          role: 'USER',
+          status: 'INACTIVE',
+          createdAt: '2026-11-12T16:10:00.000Z'
+        }
+      ];
+    }
+
+    // Ensure angrevyas@gmail.com admin account is present with name angrevyas
+    const adminIndex = users.findIndex((u) => u.email.toLowerCase() === 'angrevyas@gmail.com');
+    if (adminIndex >= 0) {
+      if (users[adminIndex].name !== 'angrevyas') {
+        users[adminIndex].name = 'angrevyas';
+      }
+    } else {
+      users.unshift({
         id: 'adm-shruti',
         name: 'angrevyas',
         email: 'angrevyas@gmail.com',
         role: 'ADMIN',
         status: 'ACTIVE',
         createdAt: '2026-11-01T09:00:00.000Z'
-      },
-      {
-        id: 'adm-demo',
-        name: 'Demo Administrator',
-        email: 'admin@taskflow.dev',
-        role: 'ADMIN',
-        status: 'ACTIVE',
-        createdAt: '2026-10-15T08:00:00.000Z'
-      },
-      {
-        id: 'usr-demo',
-        name: 'Demo User',
-        email: 'user@taskflow.dev',
-        role: 'USER',
-        status: 'ACTIVE',
-        createdAt: '2026-11-05T11:20:00.000Z'
-      },
-      {
-        id: 'usr-3',
-        name: 'Rohan Verma',
-        email: 'rohan.v@taskflow.dev',
-        role: 'USER',
-        status: 'ACTIVE',
-        createdAt: '2026-11-10T14:45:00.000Z'
-      },
-      {
-        id: 'usr-4',
-        name: 'Priya Patel',
-        email: 'priya.p@taskflow.dev',
-        role: 'USER',
-        status: 'INACTIVE',
-        createdAt: '2026-11-12T16:10:00.000Z'
-      }
-    ];
+      });
+    }
 
-    localStorage.setItem(this.USERS_STORAGE_KEY, JSON.stringify(sampleUsers));
-    return sampleUsers;
+    // Ensure Shruti Naik user account is present
+    const shrutiIndex = users.findIndex((u) => u.email.toLowerCase() === 'naikshruti015@gmail.com');
+    if (shrutiIndex === -1) {
+      users.push({
+        id: 'usr-shruti',
+        name: 'Shruti Naik',
+        email: 'naikshruti015@gmail.com',
+        role: 'USER',
+        status: 'ACTIVE',
+        createdAt: '2026-11-19T10:00:00.000Z'
+      });
+    }
+
+    // Merge any registered accounts from taskflow_auth_users_db
+    try {
+      const authDbRaw = localStorage.getItem('taskflow_auth_users_db');
+      if (authDbRaw) {
+        const authUsers: any[] = JSON.parse(authDbRaw);
+        for (const au of authUsers) {
+          if (!users.some((u) => u.email.toLowerCase() === au.email.toLowerCase())) {
+            const { passwordHash, ...cleanUser } = au;
+            users.push(cleanUser);
+          }
+        }
+      }
+    } catch {}
+
+    localStorage.setItem(this.USERS_STORAGE_KEY, JSON.stringify(users));
+    return users;
   }
 
   private persistUsers(): void {

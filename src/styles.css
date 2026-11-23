@@ -32,6 +32,14 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* PrimeNG License Banner Hidden */
+#p-license-host,
+[id="p-license-host"] {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
 /* Glassmorphism and dreamy aesthetic helpers */
 .glass-card {
   background: rgba(255, 249, 242, 0.90);
