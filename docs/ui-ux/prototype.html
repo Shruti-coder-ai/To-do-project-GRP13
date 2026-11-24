@@ -3,6 +3,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>TaskFlow — UI prototype</title>
 <link rel="stylesheet" href="../../frontend/styles/theme.css">
+<link rel="stylesheet" href="../../frontend/styles/animations.css">
 <style>
 .screen{display:none}.screen.on{display:block}
 .top{display:none;position:sticky;top:0;z-index:5;background:rgba(255,249,242,.85);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);padding:12px 20px;align-items:center;gap:14px}
@@ -37,7 +38,7 @@ main{max-width:1040px;margin:0 auto;padding:28px 16px 48px}
 <header class="top" id="top"><span class="logo"><i>✓</i>TaskFlow</span><span class="badge b-pending" id="rolepill"></span><span class="sp"></span><span class="muted" id="who"></span><button class="btn btn-ghost btn-sm" id="logout">Log out</button></header>
 <main id="m">
 
-<section id="login" class="screen on"><div class="auth"><div class="hero"><span class="logo"><i>✓</i>TaskFlow</span><h2>Plan the day. Finish the week.</h2><p>One calm place for every task, deadline and status.</p></div>
+<section id="login" class="screen on"><div class="auth"><div class="hero"><span class="logo"><i>✓</i>TaskFlow</span><h2>Plan the day. Finish the week.</h2><p>One calm place for every task, deadline and status.</p><div class="deck"><div class="tcard" style="--d:1.6s"><i>✓</i><b>Review design handoff</b><small>Today</small></div><div class="tcard" style="--d:2.6s"><i>✓</i><b>Ship the login screen</b><small>Today</small></div><div class="tcard" style="--d:3.6s"><i>✓</i><b>Write sprint notes</b><small>Tomorrow</small></div></div></div>
 <div class="formside"><form class="card" data-portal="USER" autocomplete="off"><h1>Welcome back</h1><p class="muted">Log in with your TaskFlow account.</p>
 <div class="field"><label>Email or username</label><input name="id" required autocomplete="off"></div>
 <div class="field"><label>Password</label><input name="pw" type="password" required autocomplete="off"></div>
@@ -76,46 +77,52 @@ main{max-width:1040px;margin:0 auto;padding:28px 16px 48px}
 <div class="field"><label>Description</label><textarea id="nd" rows="2" placeholder="Optional notes"></textarea></div>
 <div class="row2"><div class="field"><label>Priority</label><select id="np"><option>Low</option><option selected>Medium</option><option>High</option></select></div><div class="field"><label>Due date</label><input type="date" id="ndue"></div></div>
 <div style="display:flex;gap:8px;justify-content:flex-end"><button type="button" class="btn btn-ghost" id="cx">Cancel</button><button class="btn">Save task</button></div></form></div>
+<div class="toast" id="toast" role="status"></div>
 
 <script>
 /* Demo login gate: only PBKDF2 hashes are stored (no plain-text credentials). Real auth belongs in the backend. */
+function num(el,to,suf){suf=suf||'';var from=el._v||0;el._v=to;if(matchMedia('(prefers-reduced-motion:reduce)').matches||from===to){el.textContent=to+suf;return}var t0=performance.now();(function f(t){var p=Math.min((t-t0)/800,1);el.textContent=Math.round(from+(to-from)*(1-Math.pow(1-p,3)))+suf;if(p<1)requestAnimationFrame(f)})(t0)}
+function toast(m){toast_.textContent=m;toast_.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(function(){toast_.classList.remove('show')},2200)}
+function shake(f){f.classList.remove('shake');void f.offsetWidth;f.classList.add('shake')}
+var toast_=document.getElementById('toast'),stag=false,lastT=null;
 var SALT='taskflow-g13',DB={"0094870a44a0ed7450f37636a080221aecee5041fb049a05f133dc3b1bc619a7": {"role": "ADMIN", "name": "angrevyas"}, "87108b928b9fadd3dbd23621ecb0b0f5f969097a57d5832884b86c5d20ba1353": {"role": "ADMIN", "name": "angrevyas"}, "5e9a0e8299abda84075cd4d3f392c92b022dee97db8d4ca8fb3be87da9a6a2a6": {"role": "ADMIN", "name": "Demo Administrator"}, "3fb9a9de821ffbc7f9028078b17023902666bf77ad902a74fa2ae22a2c67c34e": {"role": "ADMIN", "name": "Demo Administrator"}, "c11fef36a43d97eeb2e34e5506d95ea6e3d2e3bec2e68f88cab87f7c3027a4ce": {"role": "USER", "name": "Demo User"}, "d50071aa451cc6427cd613a5752d2d21ea2c995412b9cd3f3cfb08c752eecb09": {"role": "USER", "name": "Demo User"}},mem={};
 function ss(k,v){try{if(v===undefined)return sessionStorage.getItem(k)||mem[k];if(v===null){sessionStorage.removeItem(k);delete mem[k]}else{sessionStorage.setItem(k,v);mem[k]=v}}catch(e){if(v===undefined)return mem[k];v===null?delete mem[k]:mem[k]=v}}
 async function hash(s){var e=new TextEncoder(),k=await crypto.subtle.importKey('raw',e.encode(s),'PBKDF2',false,['deriveBits']);var b=await crypto.subtle.deriveBits({name:'PBKDF2',salt:e.encode(SALT),iterations:120000,hash:'SHA-256'},k,256);return Array.from(new Uint8Array(b)).map(function(x){return x.toString(16).padStart(2,'0')}).join('')}
 document.querySelectorAll('form[data-portal]').forEach(function(f){f.onsubmit=async function(ev){ev.preventDefault();var id=f.id.value.trim().toLowerCase(),er=f.querySelector('.err');er.textContent='';
 if(!window.crypto||!crypto.subtle){er.textContent='Open this page over https or localhost to log in.';return}
 var r=DB[await hash(id+'\n'+f.pw.value)];f.pw.value='';
-if(!r||r.role!==f.dataset.portal){er.textContent='Email, username or password is incorrect.';return}
+if(!r||r.role!==f.dataset.portal){er.textContent='Email, username or password is incorrect.';shake(f);return}
 ss('role',r.role);ss('name',r.name);location.hash=r.role==='ADMIN'?'#admin':'#user'}});
 var tasks=[{t:'Write API docs',d:'Fastify endpoints',p:'High',done:0,due:'18 Nov'},{t:'Design login screen',d:'Lavender theme',p:'Medium',done:0,due:'22 Nov'},{t:'Set up repository',d:'Branches and folders',p:'Low',done:0,due:'24 Nov'},{t:'Create GitHub branch',d:'feature/ui-ux',p:'Low',done:1,due:'Done'}],flt='all';
 var pc={High:'b-high',Medium:'b-med',Low:'b-low'};
-function renderTasks(){var q=document.getElementById('q').value.toLowerCase(),h='';
+function renderTasks(s){stag=s===true;var q=document.getElementById('q').value.toLowerCase(),h='';
 tasks.forEach(function(x,i){if(flt==='pending'&&x.done||flt==='done'&&!x.done||(x.t+x.d).toLowerCase().indexOf(q)<0)return;
-h+='<div class="task'+(x.done?' done':'')+'"><button class="check" data-t="'+i+'" aria-label="Toggle complete">'+(x.done?'✓':'')+'</button><div><div class="task-title">'+x.t+'</div><span class="muted">'+x.d+' · Due '+x.due+'</span></div><div style="display:flex;gap:8px;align-items:center"><span class="badge '+pc[x.p]+'">'+x.p+'</span><button class="btn btn-ghost btn-sm" data-x="'+i+'">Delete</button></div></div>'});
+h+='<div class="task'+(x.done?' done':'')+(x===lastT?' just':'')+(stag?' in':'')+'" style="--i:'+i+'"><button class="check" data-t="'+i+'" aria-label="Toggle complete">'+(x.done?'✓':'')+'</button><div><div class="task-title">'+x.t+'</div><span class="muted">'+x.d+' · Due '+x.due+'</span></div><div style="display:flex;gap:8px;align-items:center"><span class="badge '+pc[x.p]+'">'+x.p+'</span><button class="btn btn-ghost btn-sm" data-x="'+i+'">Delete</button></div></div>'});
 document.getElementById('tl').innerHTML=h||'<p class="muted" style="margin:0">No tasks match. Add a task to get started.</p>';
 var n=tasks.length,d=tasks.filter(function(x){return x.done}).length,r=n?Math.round(d/n*100):0;
-k1.textContent=n;k2.textContent=n-d;k3.textContent=d;k4.textContent=r+'%';kbar.style.width=r+'%'}
-tl.onclick=function(e){var b=e.target.closest('button');if(!b)return;if(b.dataset.t!==undefined){var x=tasks[b.dataset.t];x.done=x.done?0:1;renderTasks()}
-if(b.dataset.x!==undefined&&confirm('Delete this task?')){tasks.splice(b.dataset.x,1);renderTasks()}};
+num(k1,n);num(k2,n-d);num(k3,d);num(k4,r,'%');kbar.style.width=r+'%';stag=false;lastT=null}
+tl.onclick=function(e){var b=e.target.closest('button');if(!b)return;if(b.dataset.t!==undefined){var x=tasks[b.dataset.t];x.done=x.done?0:1;lastT=x;renderTasks();toast(x.done?'Task completed':'Task reopened')}
+if(b.dataset.x!==undefined&&confirm('Delete this task?')){var row=b.closest('.task'),ix=b.dataset.x;row.classList.add('out');setTimeout(function(){tasks.splice(ix,1);renderTasks();toast('Task deleted')},250)}};
 flt_=document.getElementById('flt');flt_.onclick=function(e){var c=e.target.closest('.chip');if(!c)return;flt=c.dataset.f;flt_.querySelectorAll('.chip').forEach(function(x){x.setAttribute('aria-pressed',x===c)});renderTasks()};
 q.oninput=renderTasks;addbtn.onclick=function(){dlg.classList.add('on');nt.focus()};cx.onclick=function(){dlg.classList.remove('on')};
-tf.onsubmit=function(e){e.preventDefault();tasks.unshift({t:nt.value,d:nd.value||'No description',p:np.value,done:0,due:ndue.value||'No date'});tf.reset();dlg.classList.remove('on');renderTasks()};
+tf.onsubmit=function(e){e.preventDefault();tasks.unshift({t:nt.value,d:nd.value||'No description',p:np.value,done:0,due:ndue.value||'No date'});tf.reset();dlg.classList.remove('on');renderTasks(true);toast('Task added')};
 var users=[['angrevyas','angrevyas@gmail.com','ADMIN',1],['Demo Administrator','admin@taskflow.dev','ADMIN',1],['Demo User','user@taskflow.dev','USER',1],['Riya Patil','riya@example.com','USER',1],['Aman Shah','aman@example.com','USER',0]];
 var all=[['Write API docs','Demo User','High',0],['Design login screen','Riya Patil','Medium',0],['Set up repository','Demo User','Low',1],['Test register form','Riya Patil','High',1],['Plan sprint','Aman Shah','Medium',1],['Review PR','Demo User','Low',0]];
 function renderAdmin(){var q=uq.value.toLowerCase();ut.innerHTML=users.map(function(u,i){if((u[0]+u[1]).toLowerCase().indexOf(q)<0)return'';
 return'<tr><td><b>'+u[0]+'</b><br><span class="muted">'+u[1]+'</span></td><td>'+u[2]+'</td><td><span class="badge '+(u[3]?'b-done':'b-off')+'">'+(u[3]?'Active':'Inactive')+'</span></td><td style="text-align:right">'+(u[2]==='ADMIN'?'<span class="muted">Protected</span>':'<button class="btn btn-ghost btn-sm" data-u="'+i+'">'+(u[3]?'Deactivate':'Activate')+'</button>')+'</td></tr>'}).join('')}
-uq.oninput=renderAdmin;ut.onclick=function(e){var b=e.target.closest('button');if(b){users[b.dataset.u][3]^=1;renderAdmin();a2.textContent=users.filter(function(u){return u[3]}).length}};
+uq.oninput=renderAdmin;ut.onclick=function(e){var b=e.target.closest('button');if(b){users[b.dataset.u][3]^=1;renderAdmin();num(a2,users.filter(function(u){return u[3]}).length);toast(users[b.dataset.u][3]?'User activated':'User deactivated')}};
 at.innerHTML=all.map(function(x){return'<tr><td><b>'+x[0]+'</b></td><td>'+x[1]+'</td><td><span class="badge '+pc[x[2]]+'">'+x[2]+'</span></td><td><span class="badge '+(x[3]?'b-done':'b-pending')+'">'+(x[3]?'Completed':'Pending')+'</span></td></tr>'}).join('');
 var dn_=all.filter(function(x){return x[3]}).length,pct=Math.round(dn_/all.length*100);
-a1.textContent=users.length;a2.textContent=users.filter(function(u){return u[3]}).length;a3.textContent=all.length;a4.textContent=dn_;
-dn.style.background='conic-gradient(var(--ok) 0 '+pct+'%,var(--primary) '+pct+'% 100%)';dnl.textContent=pct+'%';
+function adminKpi(){num(a1,users.length);num(a2,users.filter(function(u){return u[3]}).length);num(a3,all.length);num(a4,dn_)}
+dn.style.setProperty('--p',pct);dnl.textContent=pct+'%';
 pb.innerHTML=['Low','Medium','High'].map(function(p){var c=all.filter(function(x){return x[2]===p}).length;return'<span style="height:'+(c/all.length*100+20)+'%"><small>'+p+' · '+c+'</small></span>'}).join('');
-regform.onsubmit=function(e){e.preventDefault();if(p1.value!==p2.value){regerr.textContent='Passwords do not match.';return}regerr.textContent='';alert('Prototype only: account not saved.');location.hash='#login'};
+regform.onsubmit=function(e){e.preventDefault();if(p1.value!==p2.value){regerr.textContent='Passwords do not match.';shake(regform);return}regerr.textContent='';alert('Prototype only: account not saved.');location.hash='#login'};
 logout.onclick=function(){ss('role',null);ss('name',null);location.hash='#login'};
 function route(){var h=(location.hash||'#login').slice(1),role=ss('role');
 if(h==='user'&&role!=='USER'||h==='admin'&&role!=='ADMIN'){h=h==='admin'?'admin-login':'login';location.hash='#'+h;return}
 if(['login','admin-login','register','user','admin'].indexOf(h)<0)h='login';
 document.querySelectorAll('.screen').forEach(function(s){s.classList.toggle('on',s.id===h)});
+document.querySelectorAll('#'+h+' .kpi strong').forEach(function(e){e._v=0});if(h==='user')renderTasks(true);if(h==='admin')adminKpi();
 var inapp=h==='user'||h==='admin';top_=document.getElementById('top');top_.classList.toggle('on',inapp);
 if(inapp){rolepill.textContent=role==='ADMIN'?'Admin':'User';who.textContent=ss('name')||''}}
 addEventListener('hashchange',route);renderTasks();renderAdmin();route();
