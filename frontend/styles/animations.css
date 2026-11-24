@@ -1,0 +1,66 @@
+/* TaskFlow animations — Dreamy Lavender. Load after theme.css. Only transform/opacity are animated. */
+@property --p{syntax:'<number>';inherits:false;initial-value:0}
+@keyframes rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@keyframes pop{from{opacity:0;transform:scale(.9)}60%{transform:scale(1.05)}to{opacity:1;transform:none}}
+@keyframes drift{50%{background-position:100% 100%}}
+@keyframes float{50%{transform:translateY(-22px)}}
+@keyframes slide-down{from{transform:translateY(-100%)}to{transform:none}}
+@keyframes shake{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+@keyframes grow{from{transform:scaleY(0)}}
+@keyframes sweep{from{--p:0}}
+@keyframes fillbar{from{width:0}}
+@keyframes tick{to{background:#7054C8;border-color:#7054C8;color:#fff}}
+@keyframes strike{to{background-size:100% 2px}}
+
+/* screen changes */
+.screen.on{animation:rise .5s cubic-bezier(.2,.8,.2,1) both}
+.top.on{animation:slide-down .4s cubic-bezier(.2,.8,.2,1)}
+
+/* brand panel: animated gradient, soft blobs, self-completing task cards */
+.auth .hero{position:relative;overflow:hidden;background:linear-gradient(135deg,#5A41A8,#7054C8 50%,#A5A0F5);background-size:200% 200%;animation:drift 16s ease infinite}
+.hero>*{position:relative;z-index:1}
+.hero:before,.hero:after{content:"";position:absolute;border-radius:50%;filter:blur(60px);opacity:.4;animation:float 9s ease-in-out infinite}
+.hero:before{width:280px;height:280px;background:var(--pink);right:-80px;top:-60px}
+.hero:after{width:240px;height:240px;background:var(--peri);left:-60px;bottom:-70px;animation-delay:-4s}
+.deck{display:none;gap:14px;max-width:380px;margin-top:36px}
+@media (min-width:1024px){.deck{display:grid}}
+.tcard{display:flex;align-items:center;gap:14px;background:var(--cream);color:var(--ink);border-radius:16px;padding:15px 18px;box-shadow:0 18px 30px -18px rgba(30,10,80,.6);opacity:0;animation:rise .7s cubic-bezier(.2,.8,.2,1) forwards;animation-delay:calc(var(--d) - .9s)}
+.tcard i{flex:none;width:24px;height:24px;border-radius:8px;border:2px solid var(--peri);display:grid;place-items:center;font-style:normal;font-size:.8rem;color:transparent;animation:tick .4s forwards;animation-delay:var(--d)}
+.tcard b{font-weight:600;background:linear-gradient(currentColor,currentColor) 0 55%/0 2px no-repeat;animation:strike .5s forwards;animation-delay:var(--d)}
+.tcard small{margin-left:auto;color:var(--muted)}
+
+/* forms and dialog */
+.formside .card{animation:rise .6s .1s both}
+.shake{animation:shake .4s}
+.btn{transition:background .15s,transform .15s,box-shadow .2s}
+.btn:active{transform:scale(.96)}
+.chip{transition:background .25s,color .25s,border-color .25s,transform .15s}
+.chip:hover{transform:translateY(-1px)}
+.dlg.on{animation:fade .2s}
+.dlg.on .card{animation:pop .35s}
+
+/* dashboards */
+.kpis .card{animation:rise .5s both;transition:transform .2s,box-shadow .2s}
+.kpis .card:nth-child(2){animation-delay:.07s}.kpis .card:nth-child(3){animation-delay:.14s}.kpis .card:nth-child(4){animation-delay:.21s}
+.kpis .card:hover{transform:translateY(-3px)}
+.bar i{animation:fillbar 1s cubic-bezier(.2,.8,.2,1);transition:width .6s cubic-bezier(.2,.8,.2,1)}
+.donut{background:conic-gradient(var(--ok) 0 calc(var(--p)*1%),var(--primary) calc(var(--p)*1%) 100%);animation:sweep 1.2s cubic-bezier(.2,.8,.2,1)}
+.bars span{transform-origin:bottom;animation:grow .9s cubic-bezier(.2,.8,.2,1) both}
+.bars span:nth-child(2){animation-delay:.1s}.bars span:nth-child(3){animation-delay:.2s}
+
+/* task rows */
+.task{transition:opacity .25s,transform .25s,background .2s}
+.task.in{animation:rise .45s both;animation-delay:calc(var(--i)*60ms)}
+.task.out{opacity:0;transform:translateX(40px)}
+.check{transition:background .2s,border-color .2s}
+.task.just.done .check{animation:pop .35s}
+.task-title{background:linear-gradient(currentColor,currentColor) 0 55%/0 2px no-repeat;transition:background-size .35s,color .35s}
+.task.done .task-title{text-decoration:none;background-size:100% 2px}
+tbody tr{animation:fade .5s both}
+
+/* toast */
+.toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,30px);background:var(--ink);color:#fff;padding:12px 20px;border-radius:12px;opacity:0;pointer-events:none;transition:opacity .3s,transform .3s;z-index:30}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+@media (prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;animation-delay:0s!important;transition-duration:.01ms!important}}
