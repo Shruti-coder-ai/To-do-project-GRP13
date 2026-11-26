@@ -4,6 +4,7 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angula
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { AuthService } from '../../../services/auth.service';
+import { ThemeService } from '../../../services/theme.service';
 
 /**
  * AdminLoginComponent
@@ -26,6 +27,7 @@ export class AdminLoginComponent {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private messageService = inject(MessageService);
+  public themeService = inject(ThemeService);
 
   // UI state signals
   showPassword = signal<boolean>(false);

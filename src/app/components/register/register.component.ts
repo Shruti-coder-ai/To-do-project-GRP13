@@ -11,6 +11,7 @@ import {
 import { Router, RouterLink } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { AuthService } from '../../services/auth.service';
+import { ThemeService } from '../../services/theme.service';
 
 /**
  * Custom Validator to confirm that Password and Confirm Password match.
@@ -64,6 +65,7 @@ export class RegisterComponent {
   private authService = inject(AuthService);
   private router = inject(Router);
   private messageService = inject(MessageService);
+  public themeService = inject(ThemeService);
 
   // Reactive UI state
   showPassword = signal<boolean>(false);
