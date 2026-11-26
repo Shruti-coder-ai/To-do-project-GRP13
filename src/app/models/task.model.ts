@@ -15,8 +15,12 @@ export type TaskStatus = 'Pending' | 'Completed';
 
 /**
  * Filter options for Task listing views
+ * - All: View every task
+ * - Pending: View tasks awaiting completion
+ * - Completed: View finished tasks
+ * - Overdue: View incomplete tasks past their deadline
  */
-export type TaskFilter = 'All' | 'Pending' | 'Completed';
+export type TaskFilter = 'All' | 'Pending' | 'Completed' | 'Overdue';
 
 /**
  * Core Task Model
@@ -28,6 +32,7 @@ export interface Task {
   description: string;
   priority: TaskPriority;
   dueDate: string; // ISO format string (e.g., '2026-12-01')
+  dueTime?: string; // Optional time string (e.g., '14:30' or '2:30 PM')
   status: TaskStatus;
   userId: string;
   userName?: string; // Included for Admin views to attribute task ownership
@@ -44,6 +49,7 @@ export interface CreateTaskDto {
   description: string;
   priority: TaskPriority;
   dueDate: string;
+  dueTime?: string;
 }
 
 /**
@@ -55,6 +61,7 @@ export interface UpdateTaskDto {
   description?: string;
   priority?: TaskPriority;
   dueDate?: string;
+  dueTime?: string;
   status?: TaskStatus;
 }
 
@@ -66,6 +73,7 @@ export interface TaskStatistics {
   totalTasks: number;
   pendingTasks: number;
   completedTasks: number;
+  overdueTasks: number;
   highPriorityTasks: number;
   completionRate: number; // percentage from 0 to 100
 }

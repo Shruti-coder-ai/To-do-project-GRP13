@@ -48,6 +48,8 @@ export class TaskService {
       tasks = tasks.filter((t) => t.status === 'Pending');
     } else if (filter === 'Completed') {
       tasks = tasks.filter((t) => t.status === 'Completed');
+    } else if (filter === 'Overdue') {
+      tasks = tasks.filter((t) => this.isTaskOverdue(t));
     }
 
     if (query) {
@@ -65,6 +67,7 @@ export class TaskService {
     const totalTasks = tasks.length;
     const completedTasks = tasks.filter((t) => t.status === 'Completed').length;
     const pendingTasks = totalTasks - completedTasks;
+    const overdueTasks = tasks.filter((t) => this.isTaskOverdue(t)).length;
     const highPriorityTasks = tasks.filter((t) => t.priority === 'High' && t.status === 'Pending').length;
     const completionRate = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
 
@@ -72,10 +75,18 @@ export class TaskService {
       totalTasks,
       pendingTasks,
       completedTasks,
+      overdueTasks,
       highPriorityTasks,
       completionRate
     };
   });
+
+  // Notification helpers & computed lists
+  public readonly userOverdueTasks = computed(() => this.userTasks().filter((t) => this.isTaskOverdue(t)));
+  public readonly userDueSoonTasks = computed(() => this.userTasks().filter((t) => this.isTaskDueSoon(t)));
+  public readonly overdueCount = computed(() => this.userOverdueTasks().length);
+  public readonly dueSoonCount = computed(() => this.userDueSoonTasks().length);
+  public readonly notificationCount = computed(() => this.overdueCount() + this.dueSoonCount());
 
   // Platform-wide task statistics for Admin Dashboard
   public readonly adminTaskStatistics = computed(() => {
@@ -138,6 +149,7 @@ export class TaskService {
         description: dto.description,
         priority: dto.priority,
         dueDate: dto.dueDate,
+        dueTime: dto.dueTime || undefined,
         status: 'Pending',
         userId: creatorId,
         userName: creatorName,
@@ -221,6 +233,44 @@ export class TaskService {
   }
 
 
+  /**
+   * Checks whether a task is past its due date (and time, if provided).
+   * Completed tasks are never overdue.
+   */
+  public isTaskOverdue(task: Task): boolean {
+    if (task.status === 'Completed' || !task.dueDate) return false;
+    const deadline = this.getTaskDeadline(task.dueDate, task.dueTime);
+    return deadline.getTime() < Date.now();
+  }
+
+  /**
+   * Checks whether a task is due within 24 hours (1 day), but not yet overdue.
+   */
+  public isTaskDueSoon(task: Task): boolean {
+    if (task.status === 'Completed' || !task.dueDate) return false;
+    const deadline = this.getTaskDeadline(task.dueDate, task.dueTime);
+    const now = Date.now();
+    const diffMs = deadline.getTime() - now;
+    return diffMs >= 0 && diffMs <= 24 * 60 * 60 * 1000;
+  }
+
+  /**
+   * Calculates the exact Date deadline for a task given its dueDate and optional dueTime.
+   */
+  public getTaskDeadline(dueDate: string, dueTime?: string): Date {
+    if (!dueDate) return new Date(NaN);
+    if (dueTime && dueTime.trim()) {
+      const parts = dueTime.trim().split(':').map(Number);
+      const hours = parts[0] ?? 23;
+      const minutes = parts[1] ?? 59;
+      const [year, month, day] = dueDate.split('-').map(Number);
+      return new Date(year, month - 1, day, hours, minutes, 0, 0);
+    } else {
+      const [year, month, day] = dueDate.split('-').map(Number);
+      return new Date(year, month - 1, day, 23, 59, 59, 999);
+    }
+  }
+
   // --- Mock Data Management ---
 
   private initializeTasks(): Task[] {
@@ -252,7 +302,8 @@ export class TaskService {
         title: 'Design Dreamy Lavender UI Mockups',
         description: 'Create high-fidelity screens for the user dashboard incorporating pastel pinks and soft violets.',
         priority: 'High',
-        dueDate: new Date(Date.now() + 2 * 86400000).toISOString().split('T')[0],
+        dueDate: new Date(Date.now() + 86400000).toISOString().split('T')[0],
+        dueTime: '18:00',
         status: 'Pending',
         userId: 'usr-shruti',
         userName: 'Shruti Naik',
@@ -264,6 +315,7 @@ export class TaskService {
         description: 'Configure role-based guards for /user/dashboard and /admin/dashboard navigation.',
         priority: 'High',
         dueDate: new Date(Date.now() + 3 * 86400000).toISOString().split('T')[0],
+        dueTime: '14:30',
         status: 'Completed',
         userId: 'usr-shruti',
         userName: 'Shruti Naik',
@@ -274,10 +326,11 @@ export class TaskService {
         title: 'Review PrimeNG 22 Component Customization',
         description: 'Style prime table, dialogs, and button ripple effects with the custom CSS design system.',
         priority: 'Medium',
-        dueDate: new Date(Date.now() + 5 * 86400000).toISOString().split('T')[0],
+        dueDate: new Date(Date.now() - 2 * 86400000).toISOString().split('T')[0],
+        dueTime: '15:00',
         status: 'Pending',
-        userId: 'usr-demo',
-        userName: 'Demo User',
+        userId: 'usr-shruti',
+        userName: 'Shruti Naik',
         createdAt: new Date().toISOString()
       },
       {
@@ -286,6 +339,7 @@ export class TaskService {
         description: 'Document completed frontend deliverables, architecture decisions, and backend integration readiness.',
         priority: 'Low',
         dueDate: new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0],
+        dueTime: '17:00',
         status: 'Pending',
         userId: 'usr-shruti',
         userName: 'Shruti Naik',

@@ -91,7 +91,8 @@ export class UserDashboardComponent implements OnInit {
     title: ['', [Validators.required, taskTitleValidator(3, 100)]],
     description: ['', [Validators.required, Validators.maxLength(500)]],
     priority: ['Medium' as TaskPriority, [Validators.required]],
-    dueDate: [new Date().toISOString().split('T')[0], [Validators.required]]
+    dueDate: [new Date().toISOString().split('T')[0], [Validators.required]],
+    dueTime: ['']
   });
 
   get f() {
@@ -123,7 +124,8 @@ export class UserDashboardComponent implements OnInit {
       title: '',
       description: '',
       priority: 'Medium',
-      dueDate: new Date().toISOString().split('T')[0]
+      dueDate: new Date().toISOString().split('T')[0],
+      dueTime: ''
     });
     this.isDialogVisible.set(true);
   }
@@ -135,7 +137,8 @@ export class UserDashboardComponent implements OnInit {
       title: task.title,
       description: task.description,
       priority: task.priority,
-      dueDate: task.dueDate
+      dueDate: task.dueDate,
+      dueTime: task.dueTime || ''
     });
     this.isDialogVisible.set(true);
   }

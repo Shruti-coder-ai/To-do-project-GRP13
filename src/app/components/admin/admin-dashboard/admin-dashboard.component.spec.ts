@@ -94,6 +94,9 @@ describe('AdminDashboardComponent', () => {
     component.taskStatusFilter.set('Completed');
     expect(component.filteredAllTasks().every((t) => t.status === 'Completed')).toBe(true);
 
+    component.taskStatusFilter.set('Overdue');
+    expect(component.filteredAllTasks().every((t) => taskService.isTaskOverdue(t))).toBe(true);
+
     component.taskStatusFilter.set('ALL');
     component.taskPriorityFilter.set('High');
     expect(component.filteredAllTasks().every((t) => t.priority === 'High')).toBe(true);

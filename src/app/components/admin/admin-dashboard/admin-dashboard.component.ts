@@ -54,7 +54,7 @@ export class AdminDashboardComponent implements OnInit {
 
   // Search & Filter signals for All Tasks view
   taskSearchQuery = signal<string>('');
-  taskStatusFilter = signal<'ALL' | 'Pending' | 'Completed'>('ALL');
+  taskStatusFilter = signal<'ALL' | 'Pending' | 'Completed' | 'Overdue'>('ALL');
   taskPriorityFilter = signal<'ALL' | TaskPriority>('ALL');
 
   // Detail Modal dialog state
@@ -166,7 +166,11 @@ export class AdminDashboardComponent implements OnInit {
     const priority = this.taskPriorityFilter();
 
     if (status !== 'ALL') {
-      tasks = tasks.filter((t) => t.status === status);
+      if (status === 'Overdue') {
+        tasks = tasks.filter((t) => this.taskService.isTaskOverdue(t));
+      } else {
+        tasks = tasks.filter((t) => t.status === status);
+      }
     }
 
     if (priority !== 'ALL') {

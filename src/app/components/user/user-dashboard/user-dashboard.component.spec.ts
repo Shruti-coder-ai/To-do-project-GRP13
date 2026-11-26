@@ -40,23 +40,28 @@ describe('UserDashboardComponent', () => {
 
     component.setFilter('Completed');
     expect(taskService.activeFilter()).toBe('Completed');
+
+    component.setFilter('Overdue');
+    expect(taskService.activeFilter()).toBe('Overdue');
   });
 
-  it('should open Add Task dialog with empty form', () => {
+  it('should open Add Task dialog with empty form and dueTime control', () => {
     component.openAddTaskDialog();
     expect(component.isDialogVisible()).toBe(true);
     expect(component.isEditing()).toBe(false);
     expect(component.editingTaskId()).toBeNull();
     expect(component.taskForm.value.title).toBe('');
+    expect(component.taskForm.contains('dueTime')).toBe(true);
   });
 
-  it('should open Edit Task dialog pre-filled with task data', () => {
+  it('should open Edit Task dialog pre-filled with task data including dueTime', () => {
     const mockTask: Task = {
       id: 'mock-1',
       title: 'Test Existing Task',
       description: 'Existing Description',
       priority: 'High',
       dueDate: '2026-12-25',
+      dueTime: '16:30',
       status: 'Pending',
       userId: 'usr-1',
       createdAt: new Date().toISOString()
@@ -68,6 +73,7 @@ describe('UserDashboardComponent', () => {
     expect(component.editingTaskId()).toBe('mock-1');
     expect(component.taskForm.value.title).toBe('Test Existing Task');
     expect(component.taskForm.value.priority).toBe('High');
+    expect(component.taskForm.value.dueTime).toBe('16:30');
   });
 
   it('should prevent submission of invalid task form', () => {

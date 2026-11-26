@@ -145,6 +145,21 @@
           >
             Completed ({{ taskService.userStatistics().completedTasks }})
           </button>
+
+          <!-- Overdue Filter Button -->
+          <button
+            type="button"
+            (click)="setFilter('Overdue')"
+            class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5"
+            [ngClass]="{
+              'bg-rose-600 text-white shadow-xs': taskService.activeFilter() === 'Overdue',
+              'text-rose-600 hover:text-rose-700': taskService.activeFilter() !== 'Overdue' && taskService.userStatistics().overdueTasks > 0,
+              'text-[#6b5d82] hover:text-[#7054C8]': taskService.activeFilter() !== 'Overdue' && taskService.userStatistics().overdueTasks === 0
+            }"
+          >
+            <i class="pi pi-exclamation-circle text-[11px]"></i>
+            <span>Overdue ({{ taskService.userStatistics().overdueTasks }})</span>
+          </button>
         </div>
 
         <!-- Add Task Primary Button -->
@@ -168,7 +183,9 @@
               class="bg-[#FFF9F2] rounded-2xl p-5 border border-purple-100 shadow-sm hover:shadow-md transition-all duration-200 flex flex-col justify-between group"
               [ngClass]="{
                 'border-l-4 border-l-emerald-500 bg-white/70': task.status === 'Completed',
-                'border-l-4 border-l-[#7054C8]': task.status === 'Pending'
+                'border-l-4 border-l-rose-500 bg-rose-50/20': task.status === 'Pending' && taskService.isTaskOverdue(task),
+                'border-l-4 border-l-amber-500 bg-amber-50/20': task.status === 'Pending' && !taskService.isTaskOverdue(task) && taskService.isTaskDueSoon(task),
+                'border-l-4 border-l-[#7054C8]': task.status === 'Pending' && !taskService.isTaskOverdue(task) && !taskService.isTaskDueSoon(task)
               }"
             >
               <!-- Card Header -->
@@ -223,11 +240,25 @@
               </div>
 
               <!-- Card Footer -->
-              <div class="pt-3 border-t border-purple-100/80 flex items-center justify-between text-xs pl-7.5">
-                <!-- Due Date Badge -->
-                <div class="flex items-center gap-1.5 text-[#6b5d82]">
+              <div class="pt-3 border-t border-purple-100/80 flex items-center justify-between text-xs pl-7.5 gap-2">
+                <!-- Due Date & Time Badge -->
+                <div class="flex flex-wrap items-center gap-1.5 text-[#6b5d82]">
                   <i class="pi pi-calendar text-[11px] text-[#7054C8]"></i>
                   <span class="font-medium text-[11px]">Due {{ task.dueDate }}</span>
+                  @if (task.dueTime) {
+                    <span class="flex items-center gap-0.5 text-[11px] font-semibold text-[#7054C8] dark:text-purple-300">
+                      <i class="pi pi-clock text-[10px]"></i> {{ task.dueTime }}
+                    </span>
+                  }
+                  @if (taskService.isTaskOverdue(task)) {
+                    <span class="px-1.5 py-0.5 rounded-md text-[10px] font-extrabold uppercase bg-rose-100 text-rose-700 animate-pulse">
+                      Overdue
+                    </span>
+                  } @else if (taskService.isTaskDueSoon(task)) {
+                    <span class="px-1.5 py-0.5 rounded-md text-[10px] font-extrabold uppercase bg-amber-100 text-amber-800">
+                      Due in 1d
+                    </span>
+                  }
                 </div>
 
                 <!-- Action Buttons: Edit & Delete -->
@@ -356,8 +387,8 @@
       }
     </div>
 
-    <!-- Priority and Due Date Row -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+    <!-- Priority, Due Date and Due Time Row -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
       <!-- Priority Dropdown -->
       <div>
         <label for="task-priority" class="block text-xs font-bold text-[#332747] uppercase tracking-wider mb-1">
@@ -366,7 +397,7 @@
         <select
           id="task-priority"
           formControlName="priority"
-          class="w-full px-3.5 py-2.5 bg-white rounded-xl border border-purple-200 text-sm text-[#332747] focus:outline-hidden focus:ring-3 focus:ring-[#7054C8]/20 focus:border-[#7054C8] transition-all"
+          class="w-full px-3 py-2.5 bg-white rounded-xl border border-purple-200 text-sm text-[#332747] focus:outline-hidden focus:ring-3 focus:ring-[#7054C8]/20 focus:border-[#7054C8] transition-all"
         >
           @for (p of priorities; track p) {
             <option [value]="p">{{ p }} Priority</option>
@@ -383,7 +414,20 @@
           id="task-due-date"
           type="date"
           formControlName="dueDate"
-          class="w-full px-3.5 py-2.5 bg-white rounded-xl border border-purple-200 text-sm text-[#332747] focus:outline-hidden focus:ring-3 focus:ring-[#7054C8]/20 focus:border-[#7054C8] transition-all"
+          class="w-full px-3 py-2.5 bg-white rounded-xl border border-purple-200 text-sm text-[#332747] focus:outline-hidden focus:ring-3 focus:ring-[#7054C8]/20 focus:border-[#7054C8] transition-all"
+        />
+      </div>
+
+      <!-- Due Time Field -->
+      <div>
+        <label for="task-due-time" class="block text-xs font-bold text-[#332747] uppercase tracking-wider mb-1">
+          Due Time
+        </label>
+        <input
+          id="task-due-time"
+          type="time"
+          formControlName="dueTime"
+          class="w-full px-3 py-2.5 bg-white rounded-xl border border-purple-200 text-sm text-[#332747] focus:outline-hidden focus:ring-3 focus:ring-[#7054C8]/20 focus:border-[#7054C8] transition-all"
         />
       </div>
     </div>
