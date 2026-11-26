@@ -1,0 +1,26 @@
+{
+    "sqltools.connections": [
+        {
+            "ssh": "Disabled",
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 5432,
+            "driver": "PostgreSQL",
+            "name": "Todo app",
+            "database": "postgress",
+            "username": "postgress",
+            "password": "ShrutI"
+        },
+        {
+            "ssh": "Disabled",
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 5432,
+            "driver": "PostgreSQL",
+            "name": "Todo",
+            "database": "postgress",
+            "username": "postgress",
+            "password": "ShrutI"
+        }
+    ]
+}

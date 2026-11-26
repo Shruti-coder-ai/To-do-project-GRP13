@@ -24,22 +24,34 @@
   </div>
 
   <!-- Right: User Info Chip, Role Badge & Actions -->
-  <div class="flex items-center gap-3 sm:gap-4">
+  <div class="flex items-center gap-2 sm:gap-3">
+    <!-- Theme Mode Toggle Button -->
+    <button
+      type="button"
+      (click)="themeService.toggleTheme()"
+      class="px-3 py-2 rounded-xl text-xs font-bold bg-white/90 dark:bg-[#1E192F] hover:bg-purple-50 dark:hover:bg-[#2A233F] text-[#7054C8] dark:text-purple-300 border border-purple-200 dark:border-purple-800/60 shadow-xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
+      [title]="themeService.isDarkMode() ? 'Switch to Light Mode' : 'Switch to Dark Mode'"
+      [attr.aria-label]="themeService.isDarkMode() ? 'Switch to Light Mode' : 'Switch to Dark Mode'"
+    >
+      <i [class]="themeService.isDarkMode() ? 'pi pi-sun text-amber-400 text-sm' : 'pi pi-moon text-[#7054C8] text-sm'"></i>
+      <span class="hidden sm:inline">{{ themeService.isDarkMode() ? 'Light' : 'Dark' }}</span>
+    </button>
+
     <!-- User Chip with Greeting -->
     @if (authService.currentUser(); as user) {
-      <div class="flex items-center gap-2.5 bg-white/80 px-3 py-1.5 rounded-xl border border-purple-100 shadow-xs">
+      <div class="flex items-center gap-2.5 bg-white/80 dark:bg-[#1E192F]/80 px-3 py-1.5 rounded-xl border border-purple-100 dark:border-purple-800/40 shadow-xs">
         <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-[#7054C8] to-[#A5A0F5] text-white flex items-center justify-center font-bold text-xs shadow-xs">
           {{ user.name.charAt(0).toUpperCase() }}
         </div>
         <div class="text-left hidden md:block">
-          <p class="text-xs font-bold text-[#332747] leading-none truncate max-w-[140px]">
+          <p class="text-xs font-bold text-[#332747] dark:text-[#EDE7FF] leading-none truncate max-w-[140px]">
             {{ user.name }}
           </p>
           <span
             class="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-md inline-block mt-1"
             [ngClass]="{
-              'bg-purple-100 text-[#7054C8]': user.role === 'USER',
-              'bg-pink-100 text-pink-700': user.role === 'ADMIN'
+              'bg-purple-100 text-[#7054C8] dark:bg-purple-900/50 dark:text-purple-300': user.role === 'USER',
+              'bg-pink-100 text-pink-700 dark:bg-pink-900/50 dark:text-pink-300': user.role === 'ADMIN'
             }"
           >
             {{ user.role }}
@@ -52,7 +64,7 @@
     <button
       type="button"
       (click)="onLogout()"
-      class="px-3.5 py-2 rounded-xl text-xs font-bold bg-white/90 hover:bg-rose-50 text-rose-600 hover:text-rose-700 border border-rose-200 shadow-xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
+      class="px-3.5 py-2 rounded-xl text-xs font-bold bg-white/90 dark:bg-[#1E192F] hover:bg-rose-50 dark:hover:bg-rose-950/40 text-rose-600 hover:text-rose-700 dark:text-rose-400 border border-rose-200 dark:border-rose-900/50 shadow-xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
       title="Log out of application"
     >
       <i class="pi pi-sign-out text-sm"></i>
